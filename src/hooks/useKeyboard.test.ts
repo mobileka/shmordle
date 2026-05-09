@@ -80,6 +80,36 @@ describe('useKeyboard', () => {
     expect(onLetter).not.toHaveBeenCalled();
   });
 
+  it('ignores letter keys when metaKey is pressed', () => {
+    render();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', metaKey: true }));
+    expect(onLetter).not.toHaveBeenCalled();
+  });
+
+  it('ignores letter keys when ctrlKey is pressed', () => {
+    render();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', ctrlKey: true }));
+    expect(onLetter).not.toHaveBeenCalled();
+  });
+
+  it('ignores letter keys when altKey is pressed', () => {
+    render();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', altKey: true }));
+    expect(onLetter).not.toHaveBeenCalled();
+  });
+
+  it('ignores Enter when metaKey is pressed', () => {
+    render();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', metaKey: true }));
+    expect(onEnter).not.toHaveBeenCalled();
+  });
+
+  it('ignores Backspace when metaKey is pressed', () => {
+    render();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', metaKey: true }));
+    expect(onBackspace).not.toHaveBeenCalled();
+  });
+
   it('does nothing when disabled', () => {
     render({ disabled: true });
     fireLetter('a');

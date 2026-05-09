@@ -19,6 +19,7 @@ export function useKeyboard({
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (disabled) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       const key = e.key;
 
