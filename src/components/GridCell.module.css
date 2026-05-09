@@ -1,7 +1,7 @@
 .cell {
   width: 62px;
   height: 62px;
-  border: 2px solid #d3d6da;
+  border: 2px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,12 +10,12 @@
   text-transform: uppercase;
   user-select: none;
   box-sizing: border-box;
-  color: #1a1a1b;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-cell-bg);
 }
 
 .filled {
-  border-color: #878a8c;
+  border-color: var(--color-border-filled);
 }
 
 .absent {
@@ -57,14 +57,14 @@
 @keyframes flip {
   0% {
     transform: rotateX(0deg);
-    background: #ffffff;
-    border-color: #d3d6da;
-    color: #1a1a1b;
+    background: var(--color-cell-bg);
+    border-color: var(--color-border);
+    color: var(--color-text);
   }
   49% {
-    background: #ffffff;
-    border-color: #d3d6da;
-    color: #1a1a1b;
+    background: var(--color-cell-bg);
+    border-color: var(--color-border);
+    color: var(--color-text);
   }
   50% {
     transform: rotateX(90deg);

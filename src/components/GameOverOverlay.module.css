@@ -10,27 +10,27 @@
 }
 
 .content {
-  background: #ffffff;
+  background: var(--color-overlay-bg);
   padding: 40px 60px;
   border-radius: 8px;
   text-align: center;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 24px var(--color-overlay-shadow);
 }
 
 .title {
   font-size: 1.8rem;
   margin: 0 0 12px 0;
-  color: #1a1a1b;
+  color: var(--color-text);
 }
 
 .word {
   font-size: 1.2rem;
   margin: 0 0 24px 0;
-  color: #787c7e;
+  color: var(--color-word-subtitle);
 }
 
 .word strong {
-  color: #1a1a1b;
+  color: var(--color-text);
   letter-spacing: 2px;
 }
 

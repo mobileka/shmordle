@@ -3,8 +3,8 @@
   top: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1a1a1b;
-  color: #ffffff;
+  background: var(--color-toast-bg);
+  color: var(--color-toast-text);
   padding: 12px 24px;
   border-radius: 4px;
   font-weight: bold;
