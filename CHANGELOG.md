@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0] — 2026-05-09
+
+### Added
+
+- Game state persistence via localStorage. The game continues after a page refresh (Cmd+R).
+- Give Up button (flag icon in the header, next to theme toggle). Forfeits and shows the game-over overlay with the hidden word revealed.
+- 44 new tests across 5 files, bringing total to 138.
+
 ## [0.1.0] — 2026-05-09
 
 ### Added
