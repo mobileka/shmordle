@@ -8,6 +8,18 @@
   margin-bottom: clamp(16px, 3vw, 24px);
 }
 
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1vw, 10px);
+}
+
+.logo {
+  width: clamp(20px, 4vw, 28px);
+  height: clamp(20px, 4vw, 28px);
+  display: block;
+}
+
 .title {
   font-size: clamp(1.3rem, 5vw, 2rem);
   font-weight: 700;

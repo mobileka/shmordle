@@ -3,6 +3,7 @@
 ## Critical rules
 
 - NEVER commit or push the changes unless explicitly asked by user
+- All visual changes and interfaces must be responsive (work on 320px–1920px screens)
 
 ## After Every Change
 

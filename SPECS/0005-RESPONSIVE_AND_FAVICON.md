@@ -87,7 +87,7 @@ In `Header.module.css`:
 
 ### Step 6: Add Favicon
 
-- Create `public/favicon.svg` — a simple SVG: green rounded rectangle (#6aaa64) with a white "S" letter
+- Create `public/favicon.svg` — a simple SVG: green rounded rectangle (#6aaa64) with white "SH" text
 - Link it in `index.html` with `<link rel="icon" type="image/svg+xml" href="/favicon.svg">`
 - Optionally add a 32×32 PNG fallback (but SVG is supported in all modern browsers)
 
