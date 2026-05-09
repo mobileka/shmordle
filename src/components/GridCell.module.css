@@ -1,0 +1,83 @@
+.cell {
+  width: 62px;
+  height: 62px;
+  border: 2px solid #d3d6da;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  user-select: none;
+  box-sizing: border-box;
+  color: #1a1a1b;
+  background: #ffffff;
+}
+
+.filled {
+  border-color: #878a8c;
+}
+
+.absent {
+  background: #787c7e;
+  border-color: #787c7e;
+  color: #ffffff;
+}
+
+.present {
+  background: #c9b458;
+  border-color: #c9b458;
+  color: #ffffff;
+}
+
+.correct {
+  background: #6aaa64;
+  border-color: #6aaa64;
+  color: #ffffff;
+}
+
+.animating.absent {
+  --bg: #787c7e;
+  --border: #787c7e;
+  animation: flip 300ms ease forwards;
+}
+
+.animating.present {
+  --bg: #c9b458;
+  --border: #c9b458;
+  animation: flip 300ms ease forwards;
+}
+
+.animating.correct {
+  --bg: #6aaa64;
+  --border: #6aaa64;
+  animation: flip 300ms ease forwards;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+    background: #ffffff;
+    border-color: #d3d6da;
+    color: #1a1a1b;
+  }
+  49% {
+    background: #ffffff;
+    border-color: #d3d6da;
+    color: #1a1a1b;
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  50.1% {
+    background: var(--bg);
+    border-color: var(--border);
+    color: #ffffff;
+  }
+  100% {
+    transform: rotateX(0deg);
+    background: var(--bg);
+    border-color: var(--border);
+    color: #ffffff;
+  }
+}
