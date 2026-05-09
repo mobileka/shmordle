@@ -1,10 +1,11 @@
-import type { GameState, GameStatus, Difficulty } from '../types';
+import type { GameState, GameStatus, Difficulty, ScoreRecord, ScoresData } from '../types';
 
 const STORAGE_KEY = 'shmordle-game-state';
 const PREFERRED_KEY = 'shmordle-preferred-difficulty';
+const SCORES_KEY = 'shmordle-scores';
 
 const VALID_STATUSES: GameStatus[] = ['playing', 'won', 'lost'];
-const VALID_DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard', 'insane'];
+const VALID_DIFFICULTIES: Difficulty[] = ['zen', 'relaxed', 'hard', 'insane'];
 
 function isValidGameState(data: unknown): data is GameState {
   if (!data || typeof data !== 'object') return false;
@@ -19,6 +20,9 @@ function isValidGameState(data: unknown): data is GameState {
   if (typeof obj.keyboardState !== 'object' || obj.keyboardState === null) return false;
   if (!VALID_DIFFICULTIES.includes(obj.difficulty as Difficulty)) return false;
   if (typeof obj.startedAt !== 'number' || obj.startedAt <= 0) return false;
+  if (typeof obj.streak !== 'number') return false;
+  if (typeof obj.sessionPoints !== 'number') return false;
+  if (typeof obj.timeBonus !== 'number') return false;
 
   return true;
 }
@@ -54,4 +58,30 @@ export function loadPreferredDifficulty(): Difficulty | null {
   if (!raw) return null;
   if (!VALID_DIFFICULTIES.includes(raw as Difficulty)) return null;
   return raw as Difficulty;
+}
+
+export function saveScore(record: ScoreRecord): void {
+  const data = loadScores();
+  data.records.push(record);
+  localStorage.setItem(SCORES_KEY, JSON.stringify(data));
+}
+
+export function loadScores(): ScoresData {
+  try {
+    const raw = localStorage.getItem(SCORES_KEY);
+    if (!raw) return { records: [] };
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.records)) return { records: [] };
+
+    return parsed;
+  } catch {
+    return { records: [] };
+  }
+}
+
+export function clearScores(difficulty: Difficulty): void {
+  const data = loadScores();
+  data.records = data.records.filter((r) => r.difficulty !== difficulty);
+  localStorage.setItem(SCORES_KEY, JSON.stringify(data));
 }

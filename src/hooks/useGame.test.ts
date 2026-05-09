@@ -99,6 +99,9 @@ const makeState = (overrides: Partial<GameState> = {}): GameState => ({
   keyboardState: {},
   difficulty: 'hard' as Difficulty,
   startedAt: Date.now(),
+  streak: 1,
+  sessionPoints: 0,
+  timeBonus: 0,
   ...overrides,
 });
 
@@ -239,7 +242,7 @@ describe('reducer', () => {
 
     it('picks a new hidden word', () => {
       const state = makeState({ hiddenWord: 'HELLO' });
-      const next = reducer(state, { type: 'START_GAME', difficulty: 'easy' });
+      const next = reducer(state, { type: 'START_GAME', difficulty: 'zen' });
       expect(typeof next.hiddenWord).toBe('string');
       expect(next.hiddenWord).toHaveLength(5);
     });
@@ -247,14 +250,72 @@ describe('reducer', () => {
     it('sets startedAt to current time', () => {
       const before = Date.now();
       const state = makeState();
-      const next = reducer(state, { type: 'START_GAME', difficulty: 'normal' });
+      const next = reducer(state, { type: 'START_GAME', difficulty: 'relaxed' });
       expect(next.startedAt).toBeGreaterThanOrEqual(before);
     });
 
-    it('works with easy difficulty', () => {
+    it('works with zen difficulty', () => {
       const state = makeState();
-      const next = reducer(state, { type: 'START_GAME', difficulty: 'easy' });
-      expect(next.difficulty).toBe('easy');
+      const next = reducer(state, { type: 'START_GAME', difficulty: 'zen' });
+      expect(next.difficulty).toBe('zen');
+    });
+  });
+
+  describe('ROUND_WIN', () => {
+    it('increments streak', () => {
+      const state = makeState({ streak: 2 });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.streak).toBe(3);
+    });
+
+    it('adds points to sessionPoints', () => {
+      const state = makeState({ sessionPoints: 50 });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.sessionPoints).toBe(80);
+    });
+
+    it('adds timeBonus from difficulty config', () => {
+      const state = makeState({ difficulty: 'insane' as Difficulty, timeBonus: 0 });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.timeBonus).toBe(30);
+    });
+
+    it('sets new hiddenWord', () => {
+      const state = makeState({ hiddenWord: 'HELLO' });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.hiddenWord).toBe('WORLD');
+    });
+
+    it('clears guesses and currentGuess', () => {
+      const state = makeState({
+        guesses: ['AAAAA', 'BBBBB'],
+        currentGuess: 'HEL',
+      });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.guesses).toEqual([]);
+      expect(next.currentGuess).toBe('');
+    });
+
+    it('clears evaluations', () => {
+      const state = makeState({
+        evaluations: [[{ letter: 'A', status: 'absent' }]],
+      });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.evaluations).toEqual([]);
+    });
+
+    it('clears keyboardState', () => {
+      const state = makeState({
+        keyboardState: { A: 'absent', B: 'correct' },
+      });
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.keyboardState).toEqual({});
+    });
+
+    it('stays playing', () => {
+      const state = makeState();
+      const next = reducer(state, { type: 'ROUND_WIN', points: 30, newWord: 'WORLD' });
+      expect(next.gameStatus).toBe('playing');
     });
   });
 
@@ -312,6 +373,9 @@ describe('useGame hook', () => {
     expect(result.current.hiddenWord).toHaveLength(5);
     expect(result.current.difficulty).toBe('hard');
     expect(typeof result.current.startedAt).toBe('number');
+    expect(result.current.streak).toBe(1);
+    expect(result.current.sessionPoints).toBe(0);
+    expect(result.current.timeBonus).toBe(0);
   });
 
   it('addLetter appends to currentGuess', async () => {
@@ -367,13 +431,9 @@ describe('useGame hook', () => {
 
   it('startGame starts a new game with given difficulty', async () => {
     const { useGame } = await import('./useGame');
-    const { result } = renderHook(() => useGame('easy'));
+    const { result } = renderHook(() => useGame('zen'));
     act(() => result.current.addLetter('H'));
     act(() => result.current.addLetter('E'));
-    act(() => result.current.addLetter('L'));
-    act(() => result.current.addLetter('L'));
-    act(() => result.current.addLetter('O'));
-    act(() => result.current.submitGuess());
     act(() => result.current.startGame('insane'));
     expect(result.current.guesses).toEqual([]);
     expect(result.current.currentGuess).toBe('');
@@ -396,22 +456,33 @@ describe('useGame hook', () => {
       hiddenWord: 'HELLO',
       guesses: ['WORLD'],
       currentGuess: 'QU',
-      evaluations: [[{ letter: 'W', status: 'absent' }]],
+      evaluations: [[
+        { letter: 'W', status: 'absent' },
+        { letter: 'O', status: 'absent' },
+        { letter: 'R', status: 'absent' },
+        { letter: 'L', status: 'absent' },
+        { letter: 'D', status: 'absent' },
+      ]],
       gameStatus: 'playing',
       keyboardState: { W: 'absent' },
       difficulty: 'hard',
       startedAt: Date.now(),
+      streak: 3,
+      sessionPoints: 120,
+      timeBonus: 60,
     };
     localStorage.setItem('shmordle-game-state', JSON.stringify(savedState));
 
     const { useGame } = await import('./useGame');
-    const { result } = renderHook(() => useGame('easy'));
+    const { result } = renderHook(() => useGame('zen'));
     expect(result.current.hiddenWord).toBe('HELLO');
     expect(result.current.guesses).toEqual(['WORLD']);
     expect(result.current.currentGuess).toBe('QU');
     expect(result.current.gameStatus).toBe('playing');
     expect(result.current.keyboardState).toEqual({ W: 'absent' });
     expect(result.current.difficulty).toBe('hard');
+    expect(result.current.streak).toBe(3);
+    expect(result.current.sessionPoints).toBe(120);
   });
 
   it('saves state to localStorage on change', async () => {
@@ -438,8 +509,8 @@ describe('useGame hook', () => {
 
   it('exposes difficulty and startedAt', async () => {
     const { useGame } = await import('./useGame');
-    const { result } = renderHook(() => useGame('normal'));
-    expect(result.current.difficulty).toBe('normal');
+    const { result } = renderHook(() => useGame('relaxed'));
+    expect(result.current.difficulty).toBe('relaxed');
     expect(typeof result.current.startedAt).toBe('number');
   });
 });

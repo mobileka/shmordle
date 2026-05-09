@@ -33,4 +33,58 @@ describe('GameOverOverlay', () => {
     await userEvent.click(screen.getByText('Play Again'));
     expect(onPlayAgain).toHaveBeenCalled();
   });
+
+  it('shows score info when provided', () => {
+    render(
+      <GameOverOverlay
+        status="lost"
+        hiddenWord="HELLO"
+        onPlayAgain={vi.fn()}
+        score={420}
+        streak={5}
+      />
+    );
+    expect(screen.getByText(/scored 420 points/i)).toBeInTheDocument();
+    expect(screen.getByText(/streak 5/i)).toBeInTheDocument();
+  });
+
+  it('shows new personal best when isNewBest is true', () => {
+    render(
+      <GameOverOverlay
+        status="lost"
+        hiddenWord="HELLO"
+        onPlayAgain={vi.fn()}
+        score={420}
+        streak={5}
+        isNewBest={true}
+        difficulty="insane"
+      />
+    );
+    expect(screen.getByText(/new personal best/i)).toBeInTheDocument();
+    expect(screen.getByText(/insane/i)).toBeInTheDocument();
+  });
+
+  it('shows View High Scores button when onViewScores is provided', async () => {
+    const onViewScores = vi.fn();
+    render(
+      <GameOverOverlay
+        status="lost"
+        hiddenWord="HELLO"
+        onPlayAgain={vi.fn()}
+        score={420}
+        streak={5}
+        onViewScores={onViewScores}
+      />
+    );
+    await userEvent.click(screen.getByText('View High Scores'));
+    expect(onViewScores).toHaveBeenCalledOnce();
+  });
+
+  it('does not show score info when score is not provided', () => {
+    render(
+      <GameOverOverlay status="lost" hiddenWord="HELLO" onPlayAgain={vi.fn()} />
+    );
+    expect(screen.queryByText(/scored/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('View High Scores')).not.toBeInTheDocument();
+  });
 });

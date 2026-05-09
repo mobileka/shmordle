@@ -1,8 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, act } from '@testing-library/react';
 import { TimerDisplay } from './TimerDisplay';
 
 describe('TimerDisplay', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders nothing when timeRemaining is null', () => {
     const { container } = render(<TimerDisplay timeRemaining={null} />);
     expect(container.firstChild).toBeNull();
@@ -44,5 +52,25 @@ describe('TimerDisplay', () => {
   it('renders 0:00 at zero', () => {
     render(<TimerDisplay timeRemaining={0} />);
     expect(screen.getByText('0:00')).toBeInTheDocument();
+  });
+
+  it('animates when timeRemaining increases', () => {
+    const { rerender } = render(<TimerDisplay timeRemaining={15} />);
+    rerender(<TimerDisplay timeRemaining={45} />);
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+
+    const el = screen.getByText(/^\d+:\d{2}$/);
+    expect(el.className).toContain('counting');
+  });
+
+  it('does not animate when timeRemaining decreases', () => {
+    const { rerender } = render(<TimerDisplay timeRemaining={45} />);
+    rerender(<TimerDisplay timeRemaining={44} />);
+
+    const el = screen.getByText('0:44');
+    expect(el.className).not.toContain('counting');
   });
 });

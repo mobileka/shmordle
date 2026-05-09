@@ -28,14 +28,13 @@ export function useTimer(
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const tick = useCallback(() => {
-    if (timeLimit === null) return;
     setTimeRemaining((prev) => {
       if (prev === null || prev <= 1) {
         return 0;
       }
       return prev - 1;
     });
-  }, [timeLimit]);
+  }, []);
 
   useEffect(() => {
     if (timeLimit === null) return;
@@ -48,6 +47,18 @@ export function useTimer(
       }
     }
   }, [timeRemaining, timeLimit]);
+
+  useEffect(() => {
+    if (timeLimit !== null) {
+      const remaining = calcRemaining(startedAt, timeLimit);
+      setTimeRemaining(remaining);
+      if (remaining <= 0) {
+        setIsExpired(true);
+      } else {
+        setIsExpired(false);
+      }
+    }
+  }, [startedAt, timeLimit]);
 
   useEffect(() => {
     if (timeLimit === null || !running) {
