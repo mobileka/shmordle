@@ -11,14 +11,16 @@
 
 .content {
   background: var(--color-overlay-bg);
-  padding: 40px 60px;
+  padding: clamp(24px, 8vw, 40px) clamp(20px, 10vw, 60px);
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 4px 24px var(--color-overlay-shadow);
+  margin: 0 16px;
+  max-width: calc(100vw - 32px);
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
   margin: 0 0 12px 0;
   color: var(--color-text);
 }

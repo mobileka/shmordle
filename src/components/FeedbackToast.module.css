@@ -1,14 +1,14 @@
 .toast {
   position: fixed;
-  top: 80px;
+  top: clamp(60px, 12vh, 80px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-toast-bg);
   color: var(--color-toast-text);
-  padding: 12px 24px;
+  padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
   border-radius: 4px;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.9rem);
   z-index: 100;
   pointer-events: none;
 }
