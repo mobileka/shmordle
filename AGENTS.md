@@ -16,8 +16,9 @@ If we add new checks (e.g. linting) to the GitHub Actions CI configuration, you 
 
 ## Commit Conventions
 
-- Conventional Commits format: short and clear messages, no need to describe everything in detail.
+- Short and clear messages, no need to describe everything in detail.
 - In present tense. Example: `Add tests for ModuleX`. Wrong: `Added tests for ModuleX`.
+- NO `feat:`, `fix:`, `chore:` or any other type prefix. Just the summary.
 
 ## Specs
 
