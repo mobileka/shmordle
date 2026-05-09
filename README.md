@@ -1,5 +1,7 @@
 Shmordle is a Wordle-like word guessing game.
 
+<img src="./screenshot.png" width="400">
+
 Shmordle is implemented using Spec Driven Development and Deepseek V4 (both PRO and Flash).
 
 The project exists to play around and learn new AI-development techniques.
