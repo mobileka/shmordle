@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.0] — 2026-05-09
+
+### Added
+
+- Full test suite: 94 tests across 12 files using Vitest + Testing Library. Covers pure functions (evaluateGuess, isValidWord, getRandomWord), state machine (statusPriority, mergeKeyboardState, reducer), hooks (useGame, useKeyboard), all 7 components, and App integration.
 
 ### Fixed
 
