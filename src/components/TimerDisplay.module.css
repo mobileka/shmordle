@@ -11,6 +11,10 @@
   animation: pulse 1s ease-in-out infinite;
 }
 
+.counting {
+  color: #e53e3e;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }

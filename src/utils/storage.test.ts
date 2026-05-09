@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { saveGameState, loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty } from './storage';
-import type { GameState } from '../types';
+import { saveGameState, loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty, saveScore, loadScores, clearScores } from './storage';
+import type { GameState, Difficulty } from '../types';
 
 const STORAGE_KEY = 'shmordle-game-state';
 const PREFERRED_KEY = 'shmordle-preferred-difficulty';
+const SCORES_KEY = 'shmordle-scores';
 
 const validState: GameState = {
   hiddenWord: 'HELLO',
@@ -12,8 +13,11 @@ const validState: GameState = {
   evaluations: [[{ letter: 'W', status: 'absent' }]],
   gameStatus: 'playing',
   keyboardState: { W: 'absent' },
-  difficulty: 'hard',
+  difficulty: 'hard' as Difficulty,
   startedAt: Date.now(),
+  streak: 1,
+  sessionPoints: 0,
+  timeBonus: 0,
 };
 
 describe('storage', () => {
@@ -149,8 +153,74 @@ describe('storage', () => {
 
     it('overwrites previous preference', () => {
       savePreferredDifficulty('hard');
-      savePreferredDifficulty('easy');
-      expect(loadPreferredDifficulty()).toBe('easy');
+      savePreferredDifficulty('zen');
+      expect(loadPreferredDifficulty()).toBe('zen');
+    });
+  });
+
+  describe('score records', () => {
+    it('saves and loads score records', () => {
+      const record = {
+        id: 1,
+        difficulty: 'insane' as Difficulty,
+        maxStreak: 5,
+        totalPoints: 420,
+        date: Date.now(),
+      };
+      saveScore(record);
+      const data = loadScores();
+      expect(data.records).toHaveLength(1);
+      expect(data.records[0]).toEqual(record);
+    });
+
+    it('appends multiple records', () => {
+      saveScore({ id: 1, difficulty: 'hard' as Difficulty, maxStreak: 2, totalPoints: 100, date: 1000 });
+      saveScore({ id: 2, difficulty: 'insane' as Difficulty, maxStreak: 5, totalPoints: 300, date: 2000 });
+      const data = loadScores();
+      expect(data.records).toHaveLength(2);
+    });
+
+    it('clears scores for a specific difficulty', () => {
+      saveScore({ id: 1, difficulty: 'hard' as Difficulty, maxStreak: 2, totalPoints: 100, date: 1000 });
+      saveScore({ id: 2, difficulty: 'insane' as Difficulty, maxStreak: 5, totalPoints: 300, date: 2000 });
+      clearScores('hard');
+      const data = loadScores();
+      expect(data.records).toHaveLength(1);
+      expect(data.records[0].difficulty).toBe('insane');
+    });
+
+    it('returns empty records when no scores saved', () => {
+      const data = loadScores();
+      expect(data.records).toEqual([]);
+    });
+
+    it('handles corrupt data gracefully', () => {
+      localStorage.setItem(SCORES_KEY, 'not-json');
+      const data = loadScores();
+      expect(data.records).toEqual([]);
+    });
+  });
+
+  describe('new GameState fields', () => {
+    it('returns null when streak is missing', () => {
+      const invalid = { ...validState } as Record<string, unknown>;
+      delete invalid.streak;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invalid));
+      expect(loadGameState()).toBeNull();
+    });
+
+    it('returns null when sessionPoints is missing', () => {
+      const invalid = { ...validState } as Record<string, unknown>;
+      delete invalid.sessionPoints;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invalid));
+      expect(loadGameState()).toBeNull();
+    });
+
+    it('returns null when timeBonus is missing', () => {
+      const invalid = { ...validState } as Record<string, unknown>;
+      delete invalid.timeBonus;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invalid));
+      expect(loadGameState()).toBeNull();
     });
   });
 });

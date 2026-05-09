@@ -1,5 +1,6 @@
 import { useReducer, useState, useCallback, useEffect } from 'react';
 import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty } from '../types';
+import { DIFFICULTY_CONFIG } from '../types';
 import { evaluateGuess } from '../utils/evaluation';
 import { isValidWord, getRandomWord } from '../utils/dictionary';
 import { loadGameState, saveGameState, clearGameState } from '../utils/storage';
@@ -11,6 +12,7 @@ type Action =
   | { type: 'REMOVE_LETTER' }
   | { type: 'SUBMIT_GUESS' }
   | { type: 'START_GAME'; difficulty: Difficulty }
+  | { type: 'ROUND_WIN'; points: number; newWord: string }
   | { type: 'TIME_UP' }
   | { type: 'FORFEIT' };
 
@@ -24,6 +26,9 @@ function createInitialState(difficulty: Difficulty): GameState {
     keyboardState: {},
     difficulty,
     startedAt: Date.now(),
+    streak: 1,
+    sessionPoints: 0,
+    timeBonus: 0,
   };
 }
 
@@ -100,6 +105,22 @@ export function reducer(state: GameState, action: Action): GameState {
     case 'START_GAME':
       return createInitialState(action.difficulty);
 
+    case 'ROUND_WIN': {
+      const timeLimit = DIFFICULTY_CONFIG[state.difficulty].timeLimit ?? 0;
+      return {
+        ...state,
+        hiddenWord: action.newWord,
+        guesses: [],
+        currentGuess: '',
+        evaluations: [],
+        keyboardState: {},
+        gameStatus: 'playing',
+        streak: state.streak + 1,
+        sessionPoints: state.sessionPoints + action.points,
+        timeBonus: state.timeBonus + timeLimit,
+      };
+    }
+
     default:
       return state;
   }
@@ -111,6 +132,7 @@ export function useGame(difficulty: Difficulty) {
   );
   const [invalidWord, setInvalidWord] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [streakToast, setStreakToast] = useState<{ points: number; streak: number } | null>(null);
 
   useEffect(() => {
     saveGameState(state);
@@ -141,10 +163,28 @@ export function useGame(difficulty: Difficulty) {
       return;
     }
 
+    const isWin = state.currentGuess === state.hiddenWord;
+    const isNonZen = state.difficulty !== 'zen';
+
+    if (isWin && isNonZen) {
+      const timeLimit = DIFFICULTY_CONFIG[state.difficulty].timeLimit!;
+      const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+      const remaining = Math.max(0, timeLimit + state.timeBonus - elapsed);
+      const points = remaining * state.streak;
+      const newWord = getRandomWord();
+      dispatch({ type: 'ROUND_WIN', points, newWord });
+      setStreakToast({ points, streak: state.streak + 1 });
+      return;
+    }
+
     dispatch({ type: 'SUBMIT_GUESS' });
     setAnimating(true);
     setTimeout(() => setAnimating(false), 1600);
-  }, [inputDisabled, state.currentGuess]);
+  }, [inputDisabled, state.currentGuess, state.hiddenWord, state.difficulty, state.startedAt, state.timeBonus, state.streak]);
+
+  const dismissStreakToast = useCallback(() => {
+    setStreakToast(null);
+  }, []);
 
   const startGame = useCallback((diff: Difficulty) => {
     clearGameState();
@@ -162,10 +202,12 @@ export function useGame(difficulty: Difficulty) {
     invalidWord,
     animating,
     inputDisabled,
+    streakToast,
     addLetter,
     removeLetter,
     submitGuess,
     startGame,
     forfeit,
+    dismissStreakToast,
   };
 }

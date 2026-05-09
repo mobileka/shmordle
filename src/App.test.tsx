@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
 
@@ -46,10 +46,10 @@ describe('App integration', () => {
   it('shows DifficultyPicker on fresh start', () => {
     render(<App />);
     expect(screen.getByText('Choose Difficulty')).toBeInTheDocument();
-    expect(screen.getByText('Insane')).toBeInTheDocument();
+    expect(screen.getByText('🧘 Zen')).toBeInTheDocument();
+    expect(screen.getByText('Relaxed')).toBeInTheDocument();
     expect(screen.getByText('Hard')).toBeInTheDocument();
-    expect(screen.getByText('Normal')).toBeInTheDocument();
-    expect(screen.getByText('Easy')).toBeInTheDocument();
+    expect(screen.getByText('Insane')).toBeInTheDocument();
   });
 
   it('shows Header even when picker is visible', () => {
@@ -90,9 +90,9 @@ describe('App integration', () => {
     expect(screen.getByText('Not in word list')).toBeInTheDocument();
   });
 
-  it('shows win overlay after correct guess', async () => {
+  it('shows win overlay for Zen mode', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByText('🧘 Zen'));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
@@ -108,7 +108,7 @@ describe('App integration', () => {
 
   it('Play Again returns to picker', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByText('🧘 Zen'));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
@@ -165,12 +165,12 @@ describe('App integration', () => {
   it('shows timer in header for timed modes', async () => {
     render(<App />);
     await userEvent.click(screen.getByText('Hard'));
-    expect(screen.getByText('1:00')).toBeInTheDocument();
+    expect(screen.getByText(/^\d:\d{2}$/)).toBeInTheDocument();
   });
 
-  it('does not show timer for Easy mode', async () => {
+  it('does not show timer for Zen mode', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Easy'));
+    await userEvent.click(screen.getByText('🧘 Zen'));
     expect(screen.queryByText(/^\d+:\d{2}$/)).not.toBeInTheDocument();
   });
 
@@ -187,6 +187,38 @@ describe('App integration', () => {
     vi.useRealTimers();
   });
 
+  it('back from High Scores returns to game-over screen', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByLabelText('Give up'));
+    await userEvent.click(screen.getByText('Give Up'));
+    expect(screen.getByText('Game Over')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('View High Scores'));
+    expect(screen.getByText('High Scores')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Back'));
+    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    expect(screen.queryByText('Choose Difficulty')).not.toBeInTheDocument();
+  });
+
+  it('saves score to High Scores after non-Zen game over', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByLabelText('Give up'));
+    await userEvent.click(screen.getByText('Give Up'));
+    await waitFor(() => {
+      expect(screen.getByText('Game Over')).toBeInTheDocument();
+    });
+
+    const raw = localStorage.getItem('shmordle-scores');
+    expect(raw).not.toBeNull();
+    const data = JSON.parse(raw!);
+    expect(data.records).toHaveLength(1);
+    expect(data.records[0].difficulty).toBe('hard');
+    expect(data.records[0].maxStreak).toBe(1);
+  });
+
   it('resumes saved game without showing picker', () => {
     const savedState = {
       hiddenWord: 'HELLO',
@@ -201,8 +233,11 @@ describe('App integration', () => {
       ]],
       gameStatus: 'playing',
       keyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
-      difficulty: 'normal',
+      difficulty: 'relaxed',
       startedAt: Date.now(),
+      streak: 1,
+      sessionPoints: 0,
+      timeBonus: 0,
     };
     localStorage.setItem('shmordle-game-state', JSON.stringify(savedState));
 

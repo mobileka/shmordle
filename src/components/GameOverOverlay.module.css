@@ -25,6 +25,20 @@
   color: var(--color-text);
 }
 
+.scoreInfo {
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
+  margin: 0 0 8px 0;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.bestInfo {
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  margin: 0 0 12px 0;
+  color: #6aaa64;
+  font-weight: 600;
+}
+
 .word {
   font-size: 1.2rem;
   margin: 0 0 24px 0;
@@ -34,6 +48,25 @@
 .word strong {
   color: var(--color-text);
   letter-spacing: 2px;
+}
+
+.scoresBtn {
+  display: block;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: none;
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  margin: 0 auto 12px auto;
+  transition: border-color 0.15s;
+}
+
+.scoresBtn:hover {
+  border-color: var(--color-border-filled);
 }
 
 .button {
