@@ -1,10 +1,7 @@
-import wordsRaw from '../data/words.txt?raw';
+import wordsDict from '../data/words.json';
 
 const dictionary: Set<string> = new Set(
-  wordsRaw
-    .split('\n')
-    .map((w) => w.trim().toUpperCase())
-    .filter((w) => w.length === 5)
+  wordsDict.map((w: string) => w.trim().toUpperCase())
 );
 
 export function isValidWord(word: string): boolean {
@@ -12,6 +9,5 @@ export function isValidWord(word: string): boolean {
 }
 
 export function getRandomWord(): string {
-  const arr = Array.from(dictionary);
-  return arr[Math.floor(Math.random() * arr.length)];
+  return wordsDict[Math.floor(Math.random() * wordsDict.length)].toUpperCase();
 }

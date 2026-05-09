@@ -42,7 +42,8 @@ interface GameState {
 
 ### Step 1: Initialization
 
-1. Load a dictionary of 5-letter words from `src/data/words.txt`. The word list will be provided separately (public domain 5-letter word list).
+1. Load a dictionary of 5-letter words from `src/data/words.json
+2. The word list will be provided separately (public domain 5-letter word list).
 2. On game start, pick a random word from the dictionary — this is the **hidden word**. Do NOT show it to the player.
 3. Reset all game state: empty guesses, empty current guess, clear evaluations, reset keyboard to default.
 
