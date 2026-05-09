@@ -3,9 +3,9 @@ import { renderHook } from '@testing-library/react';
 import { useKeyboard } from './useKeyboard';
 
 describe('useKeyboard', () => {
-  let onLetter: ReturnType<typeof vi.fn>;
-  let onEnter: ReturnType<typeof vi.fn>;
-  let onBackspace: ReturnType<typeof vi.fn>;
+  let onLetter: (letter: string) => void;
+  let onEnter: () => void;
+  let onBackspace: () => void;
 
   const fireKeyDown = (key: string) => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key }));
@@ -18,9 +18,9 @@ describe('useKeyboard', () => {
   };
 
   beforeEach(() => {
-    onLetter = vi.fn();
-    onEnter = vi.fn();
-    onBackspace = vi.fn();
+    onLetter = vi.fn<(letter: string) => void>();
+    onEnter = vi.fn<() => void>();
+    onBackspace = vi.fn<() => void>();
   });
 
   afterEach(() => {

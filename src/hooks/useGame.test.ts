@@ -4,9 +4,8 @@ import {
   statusPriority,
   mergeKeyboardState,
   reducer,
-  useGame,
 } from './useGame';
-import type { GameState, LetterResult } from '../types';
+import type { GameState, LetterResult, LetterStatus } from '../types';
 
 describe('statusPriority', () => {
   it('returns 3 for correct', () => {
@@ -40,42 +39,42 @@ describe('mergeKeyboardState', () => {
   });
 
   it('upgrades absent to present', () => {
-    const current = { A: 'absent' };
+    const current: Record<string, LetterStatus> = { A: 'absent' };
     const evaluation: LetterResult[] = [{ letter: 'A', status: 'present' }];
     const result = mergeKeyboardState(current, evaluation);
     expect(result['A']).toBe('present');
   });
 
   it('upgrades present to correct', () => {
-    const current = { A: 'present' };
+    const current: Record<string, LetterStatus> = { A: 'present' };
     const evaluation: LetterResult[] = [{ letter: 'A', status: 'correct' }];
     const result = mergeKeyboardState(current, evaluation);
     expect(result['A']).toBe('correct');
   });
 
   it('does not downgrade correct to present', () => {
-    const current = { A: 'correct' };
+    const current: Record<string, LetterStatus> = { A: 'correct' };
     const evaluation: LetterResult[] = [{ letter: 'A', status: 'present' }];
     const result = mergeKeyboardState(current, evaluation);
     expect(result['A']).toBe('correct');
   });
 
   it('does not downgrade present to absent', () => {
-    const current = { A: 'present' };
+    const current: Record<string, LetterStatus> = { A: 'present' };
     const evaluation: LetterResult[] = [{ letter: 'A', status: 'absent' }];
     const result = mergeKeyboardState(current, evaluation);
     expect(result['A']).toBe('present');
   });
 
   it('does not downgrade correct to absent', () => {
-    const current = { A: 'correct' };
+    const current: Record<string, LetterStatus> = { A: 'correct' };
     const evaluation: LetterResult[] = [{ letter: 'A', status: 'absent' }];
     const result = mergeKeyboardState(current, evaluation);
     expect(result['A']).toBe('correct');
   });
 
   it('merges multiple evaluations progressively', () => {
-    let state: Record<string, string> = {};
+    let state: Record<string, LetterStatus> = {};
     const eval1: LetterResult[] = [{ letter: 'A', status: 'absent' }];
     const eval2: LetterResult[] = [{ letter: 'A', status: 'present' }];
     const eval3: LetterResult[] = [{ letter: 'A', status: 'correct' }];
