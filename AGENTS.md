@@ -4,6 +4,7 @@
 
 - NEVER commit or push the changes unless explicitly asked by user
 - All visual changes and interfaces must be responsive (work on 320px–1920px screens)
+- Be concise, especially if not writing documentation or specs. Don't output too much information. At the end of big tasks with long TODO lists, there's no need to summarize what did. I already see the plan.
 
 ## After Every Change
 

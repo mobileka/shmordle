@@ -1,5 +1,5 @@
 import { useReducer, useState, useCallback, useEffect } from 'react';
-import type { GameState, GameStatus, LetterResult, LetterStatus } from '../types';
+import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty } from '../types';
 import { evaluateGuess } from '../utils/evaluation';
 import { isValidWord, getRandomWord } from '../utils/dictionary';
 import { loadGameState, saveGameState, clearGameState } from '../utils/storage';
@@ -10,10 +10,11 @@ type Action =
   | { type: 'ADD_LETTER'; letter: string }
   | { type: 'REMOVE_LETTER' }
   | { type: 'SUBMIT_GUESS' }
-  | { type: 'NEW_GAME' }
+  | { type: 'START_GAME'; difficulty: Difficulty }
+  | { type: 'TIME_UP' }
   | { type: 'FORFEIT' };
 
-function createInitialState(): GameState {
+function createInitialState(difficulty: Difficulty): GameState {
   return {
     hiddenWord: getRandomWord(),
     guesses: [],
@@ -21,6 +22,8 @@ function createInitialState(): GameState {
     evaluations: [],
     gameStatus: 'playing',
     keyboardState: {},
+    difficulty,
+    startedAt: Date.now(),
   };
 }
 
@@ -90,17 +93,21 @@ export function reducer(state: GameState, action: Action): GameState {
     case 'FORFEIT':
       return { ...state, gameStatus: 'lost' };
 
-    case 'NEW_GAME':
-      return createInitialState();
+    case 'TIME_UP':
+      if (state.gameStatus !== 'playing') return state;
+      return { ...state, gameStatus: 'lost' };
+
+    case 'START_GAME':
+      return createInitialState(action.difficulty);
 
     default:
       return state;
   }
 }
 
-export function useGame() {
+export function useGame(difficulty: Difficulty) {
   const [state, dispatch] = useReducer(reducer, null, () =>
-    loadGameState() ?? createInitialState()
+    loadGameState() ?? createInitialState(difficulty)
   );
   const [invalidWord, setInvalidWord] = useState(false);
   const [animating, setAnimating] = useState(false);
@@ -139,9 +146,9 @@ export function useGame() {
     setTimeout(() => setAnimating(false), 1600);
   }, [inputDisabled, state.currentGuess]);
 
-  const restart = useCallback(() => {
+  const startGame = useCallback((diff: Difficulty) => {
     clearGameState();
-    dispatch({ type: 'NEW_GAME' });
+    dispatch({ type: 'START_GAME', difficulty: diff });
     setInvalidWord(false);
     setAnimating(false);
   }, []);
@@ -158,7 +165,7 @@ export function useGame() {
     addLetter,
     removeLetter,
     submitGuess,
-    restart,
+    startGame,
     forfeit,
   };
 }
