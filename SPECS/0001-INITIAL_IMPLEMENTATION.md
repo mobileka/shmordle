@@ -1,15 +1,5 @@
 # Shmordle — Wordle-like Game Specification
 
-## Process Instructions
-
-The following instructions govern how this SPEC was created and should be followed for any future iterations:
-
-1. Generate a detailed spec describing the game to a software engineer step by step.
-2. Ask for my feedback and wait for confirmation.
-3. If I gave feedback, incorporate it into the SPEC.
-4. Keep iterating until I approve it.
-5. Add these instructions to the SPEC.md file.
-
 ---
 
 ## Game Overview
