@@ -193,6 +193,30 @@ describe('reducer', () => {
     });
   });
 
+  describe('FORFEIT', () => {
+    it('sets gameStatus to lost', () => {
+      const state = makeState({ gameStatus: 'playing' });
+      const next = reducer(state, { type: 'FORFEIT' });
+      expect(next.gameStatus).toBe('lost');
+    });
+
+    it('keeps all other state intact', () => {
+      const state = makeState({
+        hiddenWord: 'HELLO',
+        guesses: ['WORLD', 'PLANE'],
+        currentGuess: 'QU',
+        evaluations: [[{ letter: 'W', status: 'absent' }], [{ letter: 'P', status: 'absent' }]],
+        keyboardState: { W: 'absent', P: 'absent' },
+      });
+      const next = reducer(state, { type: 'FORFEIT' });
+      expect(next.hiddenWord).toBe('HELLO');
+      expect(next.guesses).toEqual(['WORLD', 'PLANE']);
+      expect(next.currentGuess).toBe('QU');
+      expect(next.evaluations).toEqual(state.evaluations);
+      expect(next.keyboardState).toEqual({ W: 'absent', P: 'absent' });
+    });
+  });
+
   describe('NEW_GAME', () => {
     it('resets all state', () => {
       const state = makeState({
@@ -220,8 +244,22 @@ describe('reducer', () => {
 });
 
 describe('useGame hook', () => {
+  const store = new Map<string, string>();
+
+  const localStorageMock = {
+    getItem: vi.fn((key: string) => store.get(key) ?? null),
+    setItem: vi.fn((key: string, value: string) => { store.set(key, value); }),
+    removeItem: vi.fn((key: string) => { store.delete(key); }),
+  };
+
   beforeEach(() => {
+    store.clear();
     vi.resetModules();
+    vi.stubGlobal('localStorage', localStorageMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('initial state is correct', async () => {
@@ -299,5 +337,64 @@ describe('useGame hook', () => {
     expect(result.current.currentGuess).toBe('');
     expect(result.current.gameStatus).toBe('playing');
     expect(result.current.invalidWord).toBe(false);
+  });
+
+  it('forfeit sets gameStatus to lost', async () => {
+    const { useGame } = await import('./useGame');
+    const { result } = renderHook(() => useGame());
+    act(() => result.current.addLetter('H'));
+    act(() => result.current.addLetter('E'));
+    act(() => result.current.forfeit());
+    expect(result.current.gameStatus).toBe('lost');
+  });
+
+  it('loads persisted state from localStorage', async () => {
+    const savedState: GameState = {
+      hiddenWord: 'HELLO',
+      guesses: ['WORLD'],
+      currentGuess: 'QU',
+      evaluations: [[{ letter: 'W', status: 'absent' }]],
+      gameStatus: 'playing',
+      keyboardState: { W: 'absent' },
+    };
+    localStorage.setItem('shmordle-game-state', JSON.stringify(savedState));
+
+    const { useGame } = await import('./useGame');
+    const { result } = renderHook(() => useGame());
+    expect(result.current.hiddenWord).toBe('HELLO');
+    expect(result.current.guesses).toEqual(['WORLD']);
+    expect(result.current.currentGuess).toBe('QU');
+    expect(result.current.gameStatus).toBe('playing');
+    expect(result.current.keyboardState).toEqual({ W: 'absent' });
+  });
+
+  it('saves state to localStorage on change', async () => {
+    const { useGame } = await import('./useGame');
+    const { result } = renderHook(() => useGame());
+    act(() => result.current.addLetter('H'));
+    act(() => result.current.addLetter('E'));
+
+    const saved = localStorage.getItem('shmordle-game-state');
+    expect(saved).not.toBeNull();
+    const parsed = JSON.parse(saved!);
+    expect(parsed.currentGuess).toBe('HE');
+  });
+
+  it('clears localStorage on restart', async () => {
+    localStorage.setItem('shmordle-game-state', 'saved');
+    const { useGame } = await import('./useGame');
+    const { result } = renderHook(() => useGame());
+    act(() => result.current.restart());
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('shmordle-game-state');
+  });
+
+  it('saves lost state to localStorage on forfeit', async () => {
+    const { useGame } = await import('./useGame');
+    const { result } = renderHook(() => useGame());
+    act(() => result.current.forfeit());
+    const saved = localStorage.getItem('shmordle-game-state');
+    expect(saved).not.toBeNull();
+    const parsed = JSON.parse(saved!);
+    expect(parsed.gameStatus).toBe('lost');
   });
 });

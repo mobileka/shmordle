@@ -1,7 +1,8 @@
-import { useReducer, useState, useCallback } from 'react';
+import { useReducer, useState, useCallback, useEffect } from 'react';
 import type { GameState, GameStatus, LetterResult, LetterStatus } from '../types';
 import { evaluateGuess } from '../utils/evaluation';
 import { isValidWord, getRandomWord } from '../utils/dictionary';
+import { loadGameState, saveGameState, clearGameState } from '../utils/storage';
 
 const INITIAL_GUESSES = 6;
 
@@ -9,7 +10,8 @@ type Action =
   | { type: 'ADD_LETTER'; letter: string }
   | { type: 'REMOVE_LETTER' }
   | { type: 'SUBMIT_GUESS' }
-  | { type: 'NEW_GAME' };
+  | { type: 'NEW_GAME' }
+  | { type: 'FORFEIT' };
 
 function createInitialState(): GameState {
   return {
@@ -85,6 +87,9 @@ export function reducer(state: GameState, action: Action): GameState {
       };
     }
 
+    case 'FORFEIT':
+      return { ...state, gameStatus: 'lost' };
+
     case 'NEW_GAME':
       return createInitialState();
 
@@ -94,9 +99,15 @@ export function reducer(state: GameState, action: Action): GameState {
 }
 
 export function useGame() {
-  const [state, dispatch] = useReducer(reducer, null, createInitialState);
+  const [state, dispatch] = useReducer(reducer, null, () =>
+    loadGameState() ?? createInitialState()
+  );
   const [invalidWord, setInvalidWord] = useState(false);
   const [animating, setAnimating] = useState(false);
+
+  useEffect(() => {
+    saveGameState(state);
+  }, [state]);
 
   const inputDisabled = state.gameStatus !== 'playing' || animating;
 
@@ -129,9 +140,14 @@ export function useGame() {
   }, [inputDisabled, state.currentGuess]);
 
   const restart = useCallback(() => {
+    clearGameState();
     dispatch({ type: 'NEW_GAME' });
     setInvalidWord(false);
     setAnimating(false);
+  }, []);
+
+  const forfeit = useCallback(() => {
+    dispatch({ type: 'FORFEIT' });
   }, []);
 
   return {
@@ -143,5 +159,6 @@ export function useGame() {
     removeLetter,
     submitGuess,
     restart,
+    forfeit,
   };
 }

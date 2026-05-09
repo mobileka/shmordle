@@ -23,6 +23,7 @@ export function App() {
     removeLetter,
     submitGuess,
     restart,
+    forfeit,
   } = useGame();
 
   useKeyboard({
@@ -35,7 +36,7 @@ export function App() {
 
   return (
     <div className={styles.app}>
-      <Header />
+      <Header onGiveUp={forfeit} showGiveUp={gameStatus === 'playing'} />
       <main className={styles.main}>
         <GameBoard
           guesses={guesses}
