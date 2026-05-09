@@ -7,16 +7,17 @@ interface Props {
   guesses: string[];
   currentGuess: string;
   evaluations: LetterResult[][];
+  animating: boolean;
 }
 
 const ROWS = 6;
 
-export function GameBoard({ guesses, currentGuess, evaluations }: Props) {
+export function GameBoard({ guesses, currentGuess, evaluations, animating }: Props) {
   const rows = [];
 
   for (let i = 0; i < ROWS; i++) {
     if (i < guesses.length) {
-      const shouldAnimate = i === guesses.length - 1 && currentGuess === '';
+      const shouldAnimate = i === guesses.length - 1 && currentGuess === '' && animating;
       rows.push(
         <GridRow
           key={i}

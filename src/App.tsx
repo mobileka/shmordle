@@ -17,6 +17,7 @@ export function App() {
     gameStatus,
     keyboardState,
     invalidWord,
+    animating,
     inputDisabled,
     addLetter,
     removeLetter,
@@ -40,6 +41,7 @@ export function App() {
           guesses={guesses}
           currentGuess={currentGuess}
           evaluations={evaluations}
+          animating={animating}
         />
         <VirtualKeyboard
           keyboardState={keyboardState}
