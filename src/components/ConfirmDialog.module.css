@@ -1,0 +1,73 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.2s ease;
+}
+
+.content {
+  background: var(--color-overlay-bg);
+  padding: 24px 32px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 24px var(--color-overlay-shadow);
+  margin: 0 16px;
+  max-width: calc(100vw - 32px);
+}
+
+.message {
+  font-size: 1.1rem;
+  margin: 0 0 20px 0;
+  color: var(--color-text);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cancel {
+  padding: 10px 24px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background: var(--color-key-bg);
+  color: var(--color-key-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cancel:hover {
+  opacity: 0.85;
+}
+
+.confirm {
+  padding: 10px 24px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background: #6aaa64;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.confirm:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

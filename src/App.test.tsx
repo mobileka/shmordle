@@ -111,16 +111,35 @@ describe('App integration', () => {
     expect(screen.queryByText('You won!')).not.toBeInTheDocument();
   });
 
-  it('shows game-over overlay when Give Up is clicked', async () => {
+  it('shows confirmation dialog when Give Up is clicked', async () => {
     render(<App />);
     await userEvent.click(screen.getByLabelText('Give up'));
+    expect(screen.getByText('Are you sure you want to give up?')).toBeInTheDocument();
+    expect(screen.getByText('Give Up')).toBeInTheDocument();
+    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.queryByText('Game Over')).not.toBeInTheDocument();
+  });
+
+  it('shows game-over overlay after confirming give-up', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByLabelText('Give up'));
+    await userEvent.click(screen.getByText('Give Up'));
     expect(screen.getByText('Game Over')).toBeInTheDocument();
     expect(screen.getByText('HELLO')).toBeInTheDocument();
+  });
+
+  it('returns to game when cancelling give-up', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByLabelText('Give up'));
+    await userEvent.click(screen.getByText('Cancel'));
+    expect(screen.queryByText('Game Over')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Give up')).toBeInTheDocument();
   });
 
   it('Give Up button disappears after game is over', async () => {
     render(<App />);
     await userEvent.click(screen.getByLabelText('Give up'));
+    await userEvent.click(screen.getByText('Give Up'));
     expect(screen.getByText('Game Over')).toBeInTheDocument();
     expect(screen.queryByLabelText('Give up')).not.toBeInTheDocument();
   });
