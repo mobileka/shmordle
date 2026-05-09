@@ -1,16 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from './hooks/useGame';
 import { useKeyboard } from './hooks/useKeyboard';
+import { useTimer } from './hooks/useTimer';
 import { Header } from './components/Header';
 import { GameBoard } from './components/GameBoard';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { FeedbackToast } from './components/FeedbackToast';
 import { GameOverOverlay } from './components/GameOverOverlay';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { DifficultyPicker } from './components/DifficultyPicker';
+import { loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty } from './utils/storage';
+import { DIFFICULTY_CONFIG } from './types';
+import type { Difficulty } from './types';
 
 import styles from './App.module.css';
 
-export function App() {
+interface GameAreaProps {
+  difficulty: Difficulty;
+  onPlayAgain: () => void;
+}
+
+function GameArea({ difficulty, onPlayAgain }: GameAreaProps) {
   const {
     hiddenWord,
     guesses,
@@ -21,14 +31,29 @@ export function App() {
     invalidWord,
     animating,
     inputDisabled,
+    startedAt,
     addLetter,
     removeLetter,
     submitGuess,
-    restart,
     forfeit,
-  } = useGame();
+  } = useGame(difficulty);
 
   const [pendingGiveUp, setPendingGiveUp] = useState(false);
+  const [timeUpHandled, setTimeUpHandled] = useState(false);
+
+  const timeLimit = DIFFICULTY_CONFIG[difficulty].timeLimit;
+  const { timeRemaining, isExpired } = useTimer(
+    startedAt,
+    timeLimit,
+    gameStatus === 'playing'
+  );
+
+  useEffect(() => {
+    if (isExpired && !timeUpHandled) {
+      setTimeUpHandled(true);
+      forfeit();
+    }
+  }, [isExpired, timeUpHandled, forfeit]);
 
   useKeyboard({
     onLetter: addLetter,
@@ -47,7 +72,11 @@ export function App() {
 
   return (
     <div className={styles.app}>
-      <Header onGiveUp={handleGiveUpClick} showGiveUp={gameStatus === 'playing'} />
+      <Header
+        onGiveUp={handleGiveUpClick}
+        showGiveUp={gameStatus === 'playing'}
+        timeRemaining={timeRemaining}
+      />
       <main className={styles.main}>
         <GameBoard
           guesses={guesses}
@@ -68,7 +97,7 @@ export function App() {
         <GameOverOverlay
           status={gameStatus}
           hiddenWord={hiddenWord}
-          onPlayAgain={restart}
+          onPlayAgain={onPlayAgain}
         />
       )}
       <ConfirmDialog
@@ -80,5 +109,37 @@ export function App() {
         onCancel={handleCancelGiveUp}
       />
     </div>
+  );
+}
+
+export function App() {
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(() => {
+    const saved = loadGameState();
+    return saved ? saved.difficulty : null;
+  });
+
+  if (difficulty === null) {
+    return (
+      <div className={styles.app}>
+        <Header />
+        <DifficultyPicker
+          defaultDifficulty={loadPreferredDifficulty() ?? 'hard'}
+          onPick={(diff) => {
+            savePreferredDifficulty(diff);
+            setDifficulty(diff);
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <GameArea
+      difficulty={difficulty}
+      onPlayAgain={() => {
+        clearGameState();
+        setDifficulty(null);
+      }}
+    />
   );
 }

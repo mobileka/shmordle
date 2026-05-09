@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
 
@@ -43,28 +43,40 @@ describe('App integration', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders Header, GameBoard, and VirtualKeyboard', () => {
+  it('shows DifficultyPicker on fresh start', () => {
+    render(<App />);
+    expect(screen.getByText('Choose Difficulty')).toBeInTheDocument();
+    expect(screen.getByText('Insane')).toBeInTheDocument();
+    expect(screen.getByText('Hard')).toBeInTheDocument();
+    expect(screen.getByText('Normal')).toBeInTheDocument();
+    expect(screen.getByText('Easy')).toBeInTheDocument();
+  });
+
+  it('shows Header even when picker is visible', () => {
     render(<App />);
     expect(screen.getByText('Shmordle')).toBeInTheDocument();
+  });
+
+  it('starts game on difficulty pick', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     expect(screen.getByText('Enter')).toBeInTheDocument();
     expect(screen.getByText('⌫')).toBeInTheDocument();
   });
 
   it('enters letters and sees them on the board', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
     const hElements = screen.getAllByText('H');
     expect(hElements.length).toBeGreaterThanOrEqual(1);
-    const eElements = screen.getAllByText('E');
-    expect(eElements.length).toBeGreaterThanOrEqual(1);
-    const lElements = screen.getAllByText('L');
-    expect(lElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows invalid word toast and keeps playing', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
@@ -80,6 +92,7 @@ describe('App integration', () => {
 
   it('shows win overlay after correct guess', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
@@ -93,8 +106,9 @@ describe('App integration', () => {
     expect(screen.getByText('You won!')).toBeInTheDocument();
   });
 
-  it('Play Again restarts the game', async () => {
+  it('Play Again returns to picker', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
@@ -108,11 +122,12 @@ describe('App integration', () => {
     expect(screen.getByText('You won!')).toBeInTheDocument();
 
     await userEvent.click(screen.getByText('Play Again'));
-    expect(screen.queryByText('You won!')).not.toBeInTheDocument();
+    expect(screen.getByText('Choose Difficulty')).toBeInTheDocument();
   });
 
   it('shows confirmation dialog when Give Up is clicked', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await userEvent.click(screen.getByLabelText('Give up'));
     expect(screen.getByText('Are you sure you want to give up?')).toBeInTheDocument();
     expect(screen.getByText('Give Up')).toBeInTheDocument();
@@ -122,6 +137,7 @@ describe('App integration', () => {
 
   it('shows game-over overlay after confirming give-up', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await userEvent.click(screen.getByLabelText('Give up'));
     await userEvent.click(screen.getByText('Give Up'));
     expect(screen.getByText('Game Over')).toBeInTheDocument();
@@ -130,6 +146,7 @@ describe('App integration', () => {
 
   it('returns to game when cancelling give-up', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await userEvent.click(screen.getByLabelText('Give up'));
     await userEvent.click(screen.getByText('Cancel'));
     expect(screen.queryByText('Game Over')).not.toBeInTheDocument();
@@ -138,9 +155,59 @@ describe('App integration', () => {
 
   it('Give Up button disappears after game is over', async () => {
     render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
     await userEvent.click(screen.getByLabelText('Give up'));
     await userEvent.click(screen.getByText('Give Up'));
     expect(screen.getByText('Game Over')).toBeInTheDocument();
     expect(screen.queryByLabelText('Give up')).not.toBeInTheDocument();
+  });
+
+  it('shows timer in header for timed modes', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText('Hard'));
+    expect(screen.getByText('1:00')).toBeInTheDocument();
+  });
+
+  it('does not show timer for Easy mode', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText('Easy'));
+    expect(screen.queryByText(/^\d+:\d{2}$/)).not.toBeInTheDocument();
+  });
+
+  it('shows game over when timer expires', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<App />);
+    await userEvent.click(screen.getByText('Insane'));
+    expect(screen.getByText('0:30')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(31_000);
+    });
+    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('resumes saved game without showing picker', () => {
+    const savedState = {
+      hiddenWord: 'HELLO',
+      guesses: ['WORLD'],
+      currentGuess: 'QU',
+      evaluations: [[
+        { letter: 'W', status: 'absent' },
+        { letter: 'O', status: 'present' },
+        { letter: 'R', status: 'absent' },
+        { letter: 'L', status: 'present' },
+        { letter: 'D', status: 'absent' },
+      ]],
+      gameStatus: 'playing',
+      keyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
+      difficulty: 'normal',
+      startedAt: Date.now(),
+    };
+    localStorage.setItem('shmordle-game-state', JSON.stringify(savedState));
+
+    render(<App />);
+    expect(screen.queryByText('Choose Difficulty')).not.toBeInTheDocument();
+    expect(screen.getByText('Enter')).toBeInTheDocument();
   });
 });

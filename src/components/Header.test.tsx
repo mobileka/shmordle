@@ -48,4 +48,19 @@ describe('Header', () => {
     await userEvent.click(screen.getByLabelText('Give up'));
     expect(onGiveUp).toHaveBeenCalledOnce();
   });
+
+  it('renders timer when timeRemaining is provided', () => {
+    render(<Header showGiveUp={true} onGiveUp={vi.fn()} timeRemaining={45} />);
+    expect(screen.getByText('0:45')).toBeInTheDocument();
+  });
+
+  it('does not render timer when timeRemaining is null', () => {
+    render(<Header showGiveUp={true} onGiveUp={vi.fn()} timeRemaining={null} />);
+    expect(screen.queryByText(/^\d+:\d{2}$/)).not.toBeInTheDocument();
+  });
+
+  it('does not render timer when timeRemaining is not provided', () => {
+    render(<Header showGiveUp={true} onGiveUp={vi.fn()} />);
+    expect(screen.queryByText(/^\d+:\d{2}$/)).not.toBeInTheDocument();
+  });
 });
