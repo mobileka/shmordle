@@ -1,5 +1,5 @@
 .row {
   display: flex;
-  gap: 5px;
+  gap: clamp(3px, 1vw, 5px);
   justify-content: center;
 }

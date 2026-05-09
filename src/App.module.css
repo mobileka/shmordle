@@ -1,7 +1,7 @@
 .app {
-  max-width: 500px;
+  max-width: min(500px, 100%);
   margin: 0 auto;
-  padding: 0 8px 32px;
+  padding: 0 clamp(4px, 2vw, 8px) clamp(16px, 4vw, 32px);
 }
 
 .main {

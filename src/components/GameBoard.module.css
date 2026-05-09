@@ -1,7 +1,7 @@
 .board {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: clamp(3px, 1vw, 5px);
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: clamp(12px, 3vw, 20px);
 }
