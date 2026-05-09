@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useGame } from './hooks/useGame';
 import { useKeyboard } from './hooks/useKeyboard';
 import { Header } from './components/Header';
@@ -5,6 +6,7 @@ import { GameBoard } from './components/GameBoard';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { FeedbackToast } from './components/FeedbackToast';
 import { GameOverOverlay } from './components/GameOverOverlay';
+import { ConfirmDialog } from './components/ConfirmDialog';
 
 import styles from './App.module.css';
 
@@ -26,6 +28,8 @@ export function App() {
     forfeit,
   } = useGame();
 
+  const [pendingGiveUp, setPendingGiveUp] = useState(false);
+
   useKeyboard({
     onLetter: addLetter,
     onEnter: submitGuess,
@@ -34,9 +38,16 @@ export function App() {
     disabled: inputDisabled,
   });
 
+  const handleGiveUpClick = () => setPendingGiveUp(true);
+  const handleConfirmGiveUp = () => {
+    setPendingGiveUp(false);
+    forfeit();
+  };
+  const handleCancelGiveUp = () => setPendingGiveUp(false);
+
   return (
     <div className={styles.app}>
-      <Header onGiveUp={forfeit} showGiveUp={gameStatus === 'playing'} />
+      <Header onGiveUp={handleGiveUpClick} showGiveUp={gameStatus === 'playing'} />
       <main className={styles.main}>
         <GameBoard
           guesses={guesses}
@@ -60,6 +71,14 @@ export function App() {
           onPlayAgain={restart}
         />
       )}
+      <ConfirmDialog
+        open={pendingGiveUp}
+        message="Are you sure you want to give up?"
+        confirmLabel="Give Up"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirmGiveUp}
+        onCancel={handleCancelGiveUp}
+      />
     </div>
   );
 }
