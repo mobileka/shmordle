@@ -21,12 +21,12 @@
   padding: 0 6px;
   border: none;
   border-radius: 4px;
-  background: #d3d6da;
+  background: var(--color-key-bg);
   font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
   text-transform: uppercase;
-  color: #1a1a1b;
+  color: var(--color-key-text);
   display: flex;
   align-items: center;
   justify-content: center;

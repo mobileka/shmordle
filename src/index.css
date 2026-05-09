@@ -1,3 +1,35 @@
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1a1a1b;
+  --color-border: #d3d6da;
+  --color-border-filled: #878a8c;
+  --color-cell-bg: #ffffff;
+  --color-key-bg: #d3d6da;
+  --color-key-text: #1a1a1b;
+  --color-overlay-bg: #ffffff;
+  --color-overlay-shadow: rgba(0, 0, 0, 0.15);
+  --color-toast-bg: #1a1a1b;
+  --color-toast-text: #ffffff;
+  --color-word-subtitle: #787c7e;
+  --color-header-border: #d3d6da;
+}
+
+[data-theme="dark"] {
+  --color-bg: #121213;
+  --color-text: #d7dadc;
+  --color-border: #3a3a3c;
+  --color-border-filled: #565758;
+  --color-cell-bg: #121213;
+  --color-key-bg: #818384;
+  --color-key-text: #d7dadc;
+  --color-overlay-bg: #1a1a1b;
+  --color-overlay-shadow: rgba(0, 0, 0, 0.3);
+  --color-toast-bg: #ffffff;
+  --color-toast-text: #1a1a1b;
+  --color-word-subtitle: #818384;
+  --color-header-border: #3a3a3c;
+}
+
 *,
 *::before,
 *::after {
@@ -9,8 +41,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-  background: #ffffff;
-  color: #1a1a1b;
+  background: var(--color-bg);
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

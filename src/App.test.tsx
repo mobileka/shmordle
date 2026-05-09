@@ -8,6 +8,14 @@ vi.mock('./utils/dictionary', () => ({
   getRandomWord: vi.fn(() => 'HELLO'),
 }));
 
+vi.mock('./hooks/useTheme', () => ({
+  useTheme: vi.fn(() => ({
+    theme: 'light',
+    isDark: false,
+    toggleTheme: vi.fn(),
+  })),
+}));
+
 function clickKeyboardKey(label: string) {
   const buttons = screen.getAllByText(label);
   const key = buttons.find(

@@ -39,7 +39,7 @@ When the user says we're working on a spec, follow this process:
 1. Ask for feedback and wait for confirmation.
 1. If feedback is given, incorporate it into the spec.
 1. Keep iterating until approved.
-1. Save the final spec to `SPECS/{NNNN}-{SUMMARY}.md`.
+1. Save the final spec to `SPECS/{NNNN}-{SUMMARY_LIKE_THIS}.md`.
 
 ## TDD
 
