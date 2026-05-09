@@ -9,6 +9,7 @@ The project exists to play around and learn new AI-development techniques.
 # How to Play
 
 ```
+npm install
 npm run dev
 ```
 
