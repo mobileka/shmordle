@@ -22,7 +22,7 @@ function createInitialState(): GameState {
   };
 }
 
-function statusPriority(status: LetterStatus): number {
+export function statusPriority(status: LetterStatus): number {
   switch (status) {
     case 'correct':
       return 3;
@@ -35,7 +35,7 @@ function statusPriority(status: LetterStatus): number {
   }
 }
 
-function mergeKeyboardState(
+export function mergeKeyboardState(
   current: Record<string, LetterStatus>,
   evaluation: LetterResult[]
 ): Record<string, LetterStatus> {
@@ -50,7 +50,7 @@ function mergeKeyboardState(
   return next;
 }
 
-function reducer(state: GameState, action: Action): GameState {
+export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'ADD_LETTER': {
       if (state.gameStatus !== 'playing') return state;

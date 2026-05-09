@@ -1,0 +1,100 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { useKeyboard } from './useKeyboard';
+
+describe('useKeyboard', () => {
+  let onLetter: ReturnType<typeof vi.fn>;
+  let onEnter: ReturnType<typeof vi.fn>;
+  let onBackspace: ReturnType<typeof vi.fn>;
+
+  const fireKeyDown = (key: string) => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key }));
+  };
+
+  const fireLetter = (char: string) => {
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: char })
+    );
+  };
+
+  beforeEach(() => {
+    onLetter = vi.fn();
+    onEnter = vi.fn();
+    onBackspace = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const render = (overrides = {}) =>
+    renderHook(() =>
+      useKeyboard({
+        onLetter,
+        onEnter,
+        onBackspace,
+        keyboardState: {},
+        disabled: false,
+        ...overrides,
+      })
+    );
+
+  it('calls onLetter for a-z keys', () => {
+    render();
+    fireLetter('a');
+    expect(onLetter).toHaveBeenCalledWith('A');
+  });
+
+  it('calls onLetter for uppercase A-Z keys', () => {
+    render();
+    fireLetter('Z');
+    expect(onLetter).toHaveBeenCalledWith('Z');
+  });
+
+  it('calls onEnter for Enter key', () => {
+    render();
+    fireKeyDown('Enter');
+    expect(onEnter).toHaveBeenCalled();
+  });
+
+  it('calls onBackspace for Backspace key', () => {
+    render();
+    fireKeyDown('Backspace');
+    expect(onBackspace).toHaveBeenCalled();
+  });
+
+  it('ignores non-letter keys', () => {
+    render();
+    fireKeyDown('1');
+    fireKeyDown(' ');
+    fireKeyDown('!');
+    fireKeyDown('ArrowLeft');
+    expect(onLetter).not.toHaveBeenCalled();
+    expect(onEnter).not.toHaveBeenCalled();
+    expect(onBackspace).not.toHaveBeenCalled();
+  });
+
+  it('blocks absent keys', () => {
+    render({ keyboardState: { A: 'absent' } });
+    fireLetter('a');
+    expect(onLetter).not.toHaveBeenCalled();
+  });
+
+  it('does nothing when disabled', () => {
+    render({ disabled: true });
+    fireLetter('a');
+    fireKeyDown('Enter');
+    fireKeyDown('Backspace');
+    expect(onLetter).not.toHaveBeenCalled();
+    expect(onEnter).not.toHaveBeenCalled();
+    expect(onBackspace).not.toHaveBeenCalled();
+  });
+
+  it('cleans up event listener on unmount', () => {
+    const { unmount } = render();
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    unmount();
+    expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+    removeSpy.mockRestore();
+  });
+});
