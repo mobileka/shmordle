@@ -1,3 +1,12 @@
+/**
+ * Top navigation bar.
+ *
+ * Contains the timer display (left), logo and title (center),
+ * and action buttons — give-up and theme toggle (right).
+ *
+ * @packageDocumentation
+ */
+
 import { ThemeToggle } from './ThemeToggle';
 import { GiveUpButton } from './GiveUpButton';
 import { TimerDisplay } from './TimerDisplay';

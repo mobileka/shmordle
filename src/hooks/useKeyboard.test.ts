@@ -33,7 +33,7 @@ describe('useKeyboard', () => {
         onLetter,
         onEnter,
         onBackspace,
-        keyboardState: {},
+        virtualKeyboardState: {},
         disabled: false,
         ...overrides,
       })
@@ -75,7 +75,7 @@ describe('useKeyboard', () => {
   });
 
   it('blocks absent keys', () => {
-    render({ keyboardState: { A: 'absent' } });
+    render({ virtualKeyboardState: { A: 'absent' } });
     fireLetter('a');
     expect(onLetter).not.toHaveBeenCalled();
   });

@@ -1,3 +1,12 @@
+/**
+ * Give-up button.
+ *
+ * Triggers the give-up confirmation flow. Renders a white-flag icon
+ * controlled by the header.
+ *
+ * @packageDocumentation
+ */
+
 import styles from './GiveUpButton.module.css';
 
 interface Props {

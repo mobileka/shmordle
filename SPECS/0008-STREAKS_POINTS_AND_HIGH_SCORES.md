@@ -137,7 +137,7 @@ timeBonus: number;
 { type: 'ROUND_WIN'; points: number; newWord: string }
 ```
 
-Handler: `streak++`, `sessionPoints += points`, `timeBonus += timeLimit`, new word, clear guesses/evaluations, keep keyboardState, status → `'playing'`
+Handler: `streak++`, `sessionPoints += points`, `timeBonus += timeLimit`, new word, clear guesses/evaluations, keep virtualKeyboardState, status → `'playing'`
 
 ### Step 6: Restructure `submitGuess` for auto-continue
 

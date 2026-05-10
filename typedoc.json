@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "tsconfig": "tsconfig.app.json",
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "src/data/**", "src/test-setup.ts"],
+  "out": "docs",
+  "cleanOutputDir": true
+}

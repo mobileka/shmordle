@@ -1,6 +1,15 @@
+/**
+ * Difficulty selection screen.
+ *
+ * Lists all difficulty levels with keyboard navigation (Arrow Up/Down,
+ * Enter) and mouse click support. Saves the preferred difficulty on pick.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useCallback } from 'react';
-import type { Difficulty } from '../types';
-import { DIFFICULTY, DIFFICULTY_CONFIG } from '../types';
+import type { Difficulty } from '../domain/types';
+import { DIFFICULTY, DIFFICULTY_CONFIG } from '../domain/types';
 import styles from './DifficultyPicker.module.css';
 
 interface Props {
@@ -42,6 +51,7 @@ export function DifficultyPicker({ defaultDifficulty, onPick }: Props) {
             key={diff}
             className={`${styles.button} ${index === selectedIndex ? styles.selected : ''}`}
             onClick={() => onPick(diff)}
+            data-difficulty={diff}
           >
             {DIFFICULTY_CONFIG[diff].label}
           </button>

@@ -1,3 +1,12 @@
+/**
+ * Transient toast notification.
+ *
+ * Displays a brief message (e.g. "Not in word list") with enter/exit
+ * CSS animations. Auto-hides after the show prop becomes false.
+ *
+ * @packageDocumentation
+ */
+
 import { useEffect, useState } from 'react';
 
 import styles from './FeedbackToast.module.css';
@@ -22,7 +31,7 @@ export function FeedbackToast({ message, show }: Props) {
   if (!visible && !show) return null;
 
   return (
-    <div className={`${styles.toast} ${show ? styles.enter : styles.exit}`}>
+    <div role="alert" className={`${styles.toast} ${show ? styles.enter : styles.exit}`}>
       {message}
     </div>
   );

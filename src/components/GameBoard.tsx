@@ -1,4 +1,13 @@
-import type { LetterResult } from '../types';
+/**
+ * Game board grid.
+ *
+ * Renders the 6-row wordle grid showing past guesses with evaluations,
+ * the current in-progress guess, and empty remaining rows.
+ *
+ * @packageDocumentation
+ */
+
+import type { LetterResult } from '../domain/types';
 import { GridRow } from './GridRow';
 
 import styles from './GameBoard.module.css';

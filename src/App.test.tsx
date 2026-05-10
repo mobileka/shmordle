@@ -11,7 +11,7 @@ const localStorageMock = {
   removeItem: vi.fn((key: string) => { store.delete(key); }),
 };
 
-vi.mock('./utils/dictionary', () => ({
+vi.mock('./domain/dictionary', () => ({
   isValidWord: vi.fn((w: string) => w !== 'XXXXX'),
   getRandomWord: vi.fn(() => 'HELLO'),
 }));
@@ -25,11 +25,7 @@ vi.mock('./hooks/useTheme', () => ({
 }));
 
 function clickKeyboardKey(label: string) {
-  const buttons = screen.getAllByText(label);
-  const key = buttons.find(
-    (b) => b.tagName === 'BUTTON'
-  ) as HTMLButtonElement;
-  return userEvent.click(key);
+  return userEvent.click(screen.getByRole('button', { name: label }));
 }
 
 describe('App integration', () => {
@@ -45,28 +41,28 @@ describe('App integration', () => {
 
   it('shows DifficultyPicker on fresh start', () => {
     render(<App />);
-    expect(screen.getByText('Choose Difficulty')).toBeInTheDocument();
-    expect(screen.getByText('🧘 Zen')).toBeInTheDocument();
-    expect(screen.getByText('Relaxed')).toBeInTheDocument();
-    expect(screen.getByText('Hard')).toBeInTheDocument();
-    expect(screen.getByText('Insane')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Choose Difficulty' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /zen/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /relaxed/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /hard/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /insane/i })).toBeInTheDocument();
   });
 
   it('shows Header even when picker is visible', () => {
     render(<App />);
-    expect(screen.getByText('Shmordle')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Shmordle' })).toBeInTheDocument();
   });
 
   it('starts game on difficulty pick', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
-    expect(screen.getByText('Enter')).toBeInTheDocument();
-    expect(screen.getByText('⌫')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
+    expect(screen.getByRole('button', { name: 'Enter' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '⌫' })).toBeInTheDocument();
   });
 
   it('enters letters and sees them on the board', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
@@ -76,139 +72,127 @@ describe('App integration', () => {
 
   it('shows invalid word toast and keeps playing', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
     await clickKeyboardKey('X');
-    const enterButtons = screen.getAllByText('Enter');
-    const enterKey = enterButtons.find(
-      (b) => b.tagName === 'BUTTON'
-    ) as HTMLButtonElement;
-    await userEvent.click(enterKey);
+    await userEvent.click(screen.getByRole('button', { name: 'Enter' }));
     expect(screen.getByText('Not in word list')).toBeInTheDocument();
   });
 
   it('shows win overlay for Zen mode', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('🧘 Zen'));
+    await userEvent.click(screen.getByRole('button', { name: /zen/i }));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
     await clickKeyboardKey('L');
     await clickKeyboardKey('O');
-    const enterButtons = screen.getAllByText('Enter');
-    const enterKey = enterButtons.find(
-      (b) => b.tagName === 'BUTTON'
-    ) as HTMLButtonElement;
-    await userEvent.click(enterKey);
-    expect(screen.getByText('You won!')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Enter' }));
+    expect(screen.getByRole('heading', { name: 'You won!' })).toBeInTheDocument();
   });
 
   it('Play Again returns to picker', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('🧘 Zen'));
+    await userEvent.click(screen.getByRole('button', { name: /zen/i }));
     await clickKeyboardKey('H');
     await clickKeyboardKey('E');
     await clickKeyboardKey('L');
     await clickKeyboardKey('L');
     await clickKeyboardKey('O');
-    const enterButtons = screen.getAllByText('Enter');
-    const enterKey = enterButtons.find(
-      (b) => b.tagName === 'BUTTON'
-    ) as HTMLButtonElement;
-    await userEvent.click(enterKey);
-    expect(screen.getByText('You won!')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Enter' }));
+    expect(screen.getByRole('heading', { name: 'You won!' })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Play Again'));
-    expect(screen.getByText('Choose Difficulty')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Play Again' }));
+    expect(screen.getByRole('heading', { name: 'Choose Difficulty' })).toBeInTheDocument();
   });
 
   it('shows confirmation dialog when Give Up is clicked', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
     expect(screen.getByText('Are you sure you want to give up?')).toBeInTheDocument();
-    expect(screen.getByText('Give Up')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
-    expect(screen.queryByText('Game Over')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Give Up' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Game Over' })).not.toBeInTheDocument();
   });
 
   it('shows game-over overlay after confirming give-up', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
-    await userEvent.click(screen.getByText('Give Up'));
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Give Up' }));
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     expect(screen.getByText('HELLO')).toBeInTheDocument();
   });
 
   it('returns to game when cancelling give-up', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
-    await userEvent.click(screen.getByText('Cancel'));
-    expect(screen.queryByText('Game Over')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('heading', { name: 'Game Over' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Give up')).toBeInTheDocument();
   });
 
   it('Give Up button disappears after game is over', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
-    await userEvent.click(screen.getByText('Give Up'));
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Give Up' }));
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Give up')).not.toBeInTheDocument();
   });
 
   it('shows timer in header for timed modes', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     expect(screen.getByText(/^\d:\d{2}$/)).toBeInTheDocument();
   });
 
   it('does not show timer for Zen mode', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('🧘 Zen'));
+    await userEvent.click(screen.getByRole('button', { name: /zen/i }));
     expect(screen.queryByText(/^\d+:\d{2}$/)).not.toBeInTheDocument();
   });
 
   it('shows game over when timer expires', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     render(<App />);
-    await userEvent.click(screen.getByText('Insane'));
+    await userEvent.click(screen.getByRole('button', { name: /insane/i }));
     expect(screen.getByText('0:30')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(31_000);
     });
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     vi.useRealTimers();
   });
 
   it('back from High Scores returns to game-over screen', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
-    await userEvent.click(screen.getByText('Give Up'));
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Give Up' }));
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('View High Scores'));
-    expect(screen.getByText('High Scores')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'View High Scores' }));
+    expect(screen.getByRole('heading', { name: 'High Scores' })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Back'));
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
-    expect(screen.queryByText('Choose Difficulty')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Choose Difficulty' })).not.toBeInTheDocument();
   });
 
   it('saves score to High Scores after non-Zen game over', async () => {
     render(<App />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     await userEvent.click(screen.getByLabelText('Give up'));
-    await userEvent.click(screen.getByText('Give Up'));
+    await userEvent.click(screen.getByRole('button', { name: 'Give Up' }));
     await waitFor(() => {
-      expect(screen.getByText('Game Over')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     });
 
     const raw = localStorage.getItem('shmordle-scores');
@@ -232,7 +216,7 @@ describe('App integration', () => {
         { letter: 'D', status: 'absent' },
       ]],
       gameStatus: 'playing',
-      keyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
+      virtualKeyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
       difficulty: 'relaxed',
       startedAt: Date.now(),
       streak: 1,
@@ -242,7 +226,7 @@ describe('App integration', () => {
     localStorage.setItem('shmordle-game-state', JSON.stringify(savedState));
 
     render(<App />);
-    expect(screen.queryByText('Choose Difficulty')).not.toBeInTheDocument();
-    expect(screen.getByText('Enter')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Choose Difficulty' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enter' })).toBeInTheDocument();
   });
 });

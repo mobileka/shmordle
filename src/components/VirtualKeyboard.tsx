@@ -1,9 +1,19 @@
-import type { LetterStatus } from '../types';
+/**
+ * On-screen QWERTY keyboard.
+ *
+ * Renders a 3-row keyboard with status-colored keys. Absent letters
+ * are visually dimmed and disabled. Supports letter input, Enter,
+ * and Backspace actions with a disabled mode.
+ *
+ * @packageDocumentation
+ */
+
+import type { LetterStatus } from '../domain/types';
 
 import styles from './VirtualKeyboard.module.css';
 
 interface Props {
-  keyboardState: Record<string, LetterStatus>;
+  virtualKeyboardState: Record<string, LetterStatus>;
   onLetter: (letter: string) => void;
   onEnter: () => void;
   onBackspace: () => void;
@@ -15,18 +25,18 @@ const ROW_2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
 const ROW_3 = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
 
 export function VirtualKeyboard({
-  keyboardState,
+  virtualKeyboardState,
   onLetter,
   onEnter,
   onBackspace,
   disabled,
 }: Props) {
   const getKeyClass = (letter: string) => {
-    const status = keyboardState[letter] || 'default';
+    const status = virtualKeyboardState[letter] || 'default';
     return [styles.key, styles[status]].join(' ');
   };
 
-  const isAbsent = (letter: string) => keyboardState[letter] === 'absent';
+  const isAbsent = (letter: string) => virtualKeyboardState[letter] === 'absent';
 
   return (
     <div className={styles.keyboard}>

@@ -1,11 +1,20 @@
+/**
+ * Physical keyboard listener hook.
+ *
+ * Maps `keydown` events to game actions (letter input, Enter, Backspace).
+ * Respects absent keys (blocked on physical input) and the disabled state.
+ *
+ * @packageDocumentation
+ */
+
 import { useEffect, useCallback } from 'react';
-import type { LetterStatus } from '../types';
+import type { LetterStatus } from '../domain/types';
 
 interface UseKeyboardOptions {
   onLetter: (letter: string) => void;
   onEnter: () => void;
   onBackspace: () => void;
-  keyboardState: Record<string, LetterStatus>;
+  virtualKeyboardState: Record<string, LetterStatus>;
   disabled: boolean;
 }
 
@@ -13,7 +22,7 @@ export function useKeyboard({
   onLetter,
   onEnter,
   onBackspace,
-  keyboardState,
+  virtualKeyboardState,
   disabled,
 }: UseKeyboardOptions) {
   const handleKeyDown = useCallback(
@@ -37,12 +46,12 @@ export function useKeyboard({
 
       if (/^[a-zA-Z]$/.test(key)) {
         const upper = key.toUpperCase();
-        if (keyboardState[upper] === 'absent') return;
+        if (virtualKeyboardState[upper] === 'absent') return;
         e.preventDefault();
         onLetter(upper);
       }
     },
-    [onLetter, onEnter, onBackspace, keyboardState, disabled]
+    [onLetter, onEnter, onBackspace, virtualKeyboardState, disabled]
   );
 
   useEffect(() => {

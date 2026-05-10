@@ -1,3 +1,12 @@
+/**
+ * Modal confirmation dialog.
+ *
+ * Renders an overlay with a message and confirm/cancel buttons.
+ * Supports dismissal via Escape key or backdrop click.
+ *
+ * @packageDocumentation
+ */
+
 import { useEffect } from 'react';
 import styles from './ConfirmDialog.module.css';
 

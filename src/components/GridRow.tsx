@@ -1,4 +1,13 @@
-import type { LetterResult, LetterStatus } from '../types';
+/**
+ * Single row of 5 grid cells.
+ *
+ * Renders a guess or empty row as five GridCell components,
+ * optionally with evaluation-based coloring and reveal animation.
+ *
+ * @packageDocumentation
+ */
+
+import type { LetterResult, LetterStatus } from '../domain/types';
 import { GridCell } from './GridCell';
 
 import styles from './GridRow.module.css';

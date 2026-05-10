@@ -1,4 +1,14 @@
-import type { LetterStatus } from '../types';
+/**
+ * Single tile in the game grid.
+ *
+ * Displays one letter with status-based background color
+ * (default/absent/present/correct) and supports staggered
+ * reveal animation.
+ *
+ * @packageDocumentation
+ */
+
+import type { LetterStatus } from '../domain/types';
 
 import styles from './GridCell.module.css';
 

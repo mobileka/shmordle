@@ -1,3 +1,12 @@
+/**
+ * Streak points toast.
+ *
+ * Briefly shows points earned and current streak after a correct
+ * non-zen guess, then auto-dismisses after 1.5 seconds.
+ *
+ * @packageDocumentation
+ */
+
 import { useEffect } from 'react';
 import styles from './StreakToast.module.css';
 
