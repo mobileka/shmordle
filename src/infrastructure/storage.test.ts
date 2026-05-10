@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { saveGameState, loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty, saveScore, loadScores, clearScores } from './storage';
-import type { GameState, Difficulty } from '../types';
+import type { GameState, Difficulty } from '../domain/types';
 
 const STORAGE_KEY = 'shmordle-game-state';
 const PREFERRED_KEY = 'shmordle-preferred-difficulty';

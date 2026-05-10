@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import type { LetterStatus } from '../types';
+import type { LetterStatus } from '../domain/types';
 
 interface UseKeyboardOptions {
   onLetter: (letter: string) => void;

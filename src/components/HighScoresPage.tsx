@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { loadScores, clearScores } from '../utils/storage';
-import { DIFFICULTY_CONFIG } from '../types';
-import type { Difficulty } from '../types';
+import { loadScores, clearScores } from '../infrastructure/storage';
+import { DIFFICULTY_CONFIG } from '../domain/types';
+import type { Difficulty } from '../domain/types';
 import { ConfirmDialog } from './ConfirmDialog';
 import styles from './HighScoresPage.module.css';
 

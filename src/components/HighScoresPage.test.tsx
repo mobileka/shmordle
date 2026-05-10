@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HighScoresPage } from './HighScoresPage';
-import { saveScore } from '../utils/storage';
-import type { Difficulty } from '../types';
+import { saveScore } from '../infrastructure/storage';
+import type { Difficulty } from '../domain/types';
 
 const store = new Map<string, string>();
 

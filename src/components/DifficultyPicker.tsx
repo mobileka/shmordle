@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Difficulty } from '../types';
-import { DIFFICULTY, DIFFICULTY_CONFIG } from '../types';
+import type { Difficulty } from '../domain/types';
+import { DIFFICULTY, DIFFICULTY_CONFIG } from '../domain/types';
 import styles from './DifficultyPicker.module.css';
 
 interface Props {

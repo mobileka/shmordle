@@ -1,5 +1,5 @@
-import { DIFFICULTY } from '../types';
-import type { GameState, GameStatus, Difficulty, ScoreRecord, ScoresData } from '../types';
+import { DIFFICULTY } from '../domain/types';
+import type { GameState, GameStatus, Difficulty, ScoreRecord, ScoresData } from '../domain/types';
 
 const STORAGE_KEY = 'shmordle-game-state';
 const PREFERRED_KEY = 'shmordle-preferred-difficulty';

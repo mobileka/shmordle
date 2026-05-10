@@ -11,9 +11,9 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { DifficultyPicker } from './components/DifficultyPicker';
 import { StreakToast } from './components/StreakToast';
 import { HighScoresPage } from './components/HighScoresPage';
-import { loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty, loadScores, saveScore } from './utils/storage';
-import { DIFFICULTY_CONFIG } from './types';
-import type { Difficulty } from './types';
+import { loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty, loadScores, saveScore } from './infrastructure/storage';
+import { DIFFICULTY_CONFIG } from './domain/types';
+import type { Difficulty } from './domain/types';
 
 import styles from './App.module.css';
 

@@ -1,4 +1,4 @@
-import type { LetterResult, LetterStatus } from '../types';
+import type { LetterResult, LetterStatus } from './types';
 
 export function evaluateGuess(guess: string, hidden: string): LetterResult[] {
   const results: LetterResult[] = Array(5)

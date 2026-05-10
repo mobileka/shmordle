@@ -5,7 +5,7 @@ import {
   mergeKeyboardState,
   reducer,
 } from './useGame';
-import type { GameState, LetterResult, LetterStatus, Difficulty } from '../types';
+import type { GameState, LetterResult, LetterStatus, Difficulty } from '../domain/types';
 
 describe('statusPriority', () => {
   it('returns 3 for correct', () => {

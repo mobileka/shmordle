@@ -1,4 +1,4 @@
-import type { LetterResult } from '../types';
+import type { LetterResult } from '../domain/types';
 import { GridRow } from './GridRow';
 
 import styles from './GameBoard.module.css';

@@ -1,4 +1,4 @@
-import type { LetterStatus } from '../types';
+import type { LetterStatus } from '../domain/types';
 
 import styles from './GridCell.module.css';
 

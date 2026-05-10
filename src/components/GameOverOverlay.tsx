@@ -1,5 +1,5 @@
-import { DIFFICULTY_CONFIG } from '../types';
-import type { Difficulty } from '../types';
+import { DIFFICULTY_CONFIG } from '../domain/types';
+import type { Difficulty } from '../domain/types';
 import styles from './GameOverOverlay.module.css';
 
 interface Props {

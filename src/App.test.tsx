@@ -11,7 +11,7 @@ const localStorageMock = {
   removeItem: vi.fn((key: string) => { store.delete(key); }),
 };
 
-vi.mock('./utils/dictionary', () => ({
+vi.mock('./domain/dictionary', () => ({
   isValidWord: vi.fn((w: string) => w !== 'XXXXX'),
   getRandomWord: vi.fn(() => 'HELLO'),
 }));

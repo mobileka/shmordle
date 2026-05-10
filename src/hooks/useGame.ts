@@ -1,9 +1,9 @@
 import { useReducer, useState, useCallback, useEffect } from 'react';
-import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty } from '../types';
-import { DIFFICULTY_CONFIG } from '../types';
-import { evaluateGuess } from '../utils/evaluation';
-import { isValidWord, getRandomWord } from '../utils/dictionary';
-import { loadGameState, saveGameState, clearGameState } from '../utils/storage';
+import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty } from '../domain/types';
+import { DIFFICULTY_CONFIG } from '../domain/types';
+import { evaluateGuess } from '../domain/evaluation';
+import { isValidWord, getRandomWord } from '../domain/dictionary';
+import { loadGameState, saveGameState, clearGameState } from '../infrastructure/storage';
 
 const INITIAL_GUESSES = 6;
 
