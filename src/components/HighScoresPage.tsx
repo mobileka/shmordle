@@ -50,6 +50,7 @@ export function HighScoresPage({ onBack }: Props) {
             key={m}
             className={`${styles.tab} ${m === mode ? styles.active : ''}`}
             onClick={() => setMode(m)}
+            data-mode={m}
           >
             {DIFFICULTY_CONFIG[m].label.replace('🧘 ', '')}
           </button>

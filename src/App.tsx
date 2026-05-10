@@ -17,14 +17,19 @@ import type { Difficulty } from './types';
 
 import styles from './App.module.css';
 
+// Which screen the app is currently showing.
 type PageView = 'picker' | 'game' | 'scores';
 
+// Props passed from the top-level App router into the active game view.
 interface GameAreaProps {
   difficulty: Difficulty;
   onPlayAgain: () => void;
   onViewScores: () => void;
 }
 
+// Wraps the game board, keyboard, overlays, and timer for a single game run.
+// Handles game-over flows (time-up, give-up), score saving, keyboard input,
+// and visual state like new-best and streak toasts.
 function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
   const {
     hiddenWord,
@@ -48,11 +53,15 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     dismissStreakToast,
   } = useGame(difficulty);
 
+  // Whether the give-up confirmation dialog is open.
   const [pendingGiveUp, setPendingGiveUp] = useState(false);
+  // Prevents the time-up score-save effect from firing more than once.
   const [timeUpHandled, setTimeUpHandled] = useState(false);
+  // Whether this session beats the player's previous best for this difficulty.
   const [isNewBest, setIsNewBest] = useState(false);
 
   const baseTimeLimit = DIFFICULTY_CONFIG[difficulty].timeLimit;
+  // The player's accumulated time bonus extends the base time limit.
   const effectiveTimeLimit = useMemo(
     () => (baseTimeLimit !== null ? baseTimeLimit + timeBonus : null),
     [baseTimeLimit, timeBonus]
@@ -64,6 +73,7 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     gameStatus === 'playing'
   );
 
+  // When the timer expires: forfeit, save the score, and flag if it's a new best.
   useEffect(() => {
     if (isExpired && !timeUpHandled) {
       setTimeUpHandled(true);
@@ -85,6 +95,8 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     }
   }, [isExpired, timeUpHandled, forfeit, difficulty, sessionPoints, streak]);
 
+  // Listen for physical keyboard input (letters, Enter, Backspace).
+  // Greyed-out keys on the virtual keyboard are also blocked on physical input.
   useKeyboard({
     onLetter: addLetter,
     onEnter: submitGuess,
@@ -93,7 +105,10 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     disabled: inputDisabled,
   });
 
+  // Open the give-up confirmation dialog.
   const handleGiveUpClick = () => setPendingGiveUp(true);
+
+  // User confirms give-up: forfeit the game and persist the session score.
   const handleConfirmGiveUp = () => {
     setPendingGiveUp(false);
     forfeit();
@@ -112,6 +127,8 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
       });
     }
   };
+
+  // User cancels the give-up dialog — just close it.
   const handleCancelGiveUp = () => setPendingGiveUp(false);
 
   const isOver = gameStatus === 'won' || gameStatus === 'lost';
@@ -170,6 +187,12 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
   );
 }
 
+// Top-level router. Decides which screen to show based on pageView:
+//   'picker' — difficulty selection
+//   'game'   — active game (GameArea)
+//   'scores' — high scores table (HighScoresPage)
+// Also holds the mutually-agreed difficulty between App and GameArea
+// and remembers the previous view so "Back" from scores works correctly.
 export function App() {
   const [pageView, setPageView] = useState<PageView>(() => {
     const saved = loadGameState();
@@ -181,22 +204,26 @@ export function App() {
   });
   const [previousView, setPreviousView] = useState<PageView>('picker');
 
+  // Picked a difficulty from the picker — save preference, start the game.
   const handleDifficultyPick = (diff: Difficulty) => {
     savePreferredDifficulty(diff);
     setDifficulty(diff);
     setPageView('game');
   };
 
+  // Play Again — wipe the saved game state and return to the picker.
   const handlePlayAgain = () => {
     clearGameState();
     setPageView('picker');
   };
 
+  // Navigate to the high scores page, remembering where we came from.
   const handleViewScores = () => {
     setPreviousView(pageView);
     setPageView('scores');
   };
 
+  // Go back from scores to the previous screen.
   const handleBackFromScores = () => {
     setPageView(previousView);
   };

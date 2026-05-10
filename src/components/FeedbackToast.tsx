@@ -22,7 +22,7 @@ export function FeedbackToast({ message, show }: Props) {
   if (!visible && !show) return null;
 
   return (
-    <div className={`${styles.toast} ${show ? styles.enter : styles.exit}`}>
+    <div role="alert" className={`${styles.toast} ${show ? styles.enter : styles.exit}`}>
       {message}
     </div>
   );

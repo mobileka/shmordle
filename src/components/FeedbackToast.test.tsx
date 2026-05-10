@@ -13,19 +13,19 @@ describe('FeedbackToast', () => {
 
   it('shows toast when show is true', () => {
     render(<FeedbackToast message="Not in word list" show={true} />);
-    expect(screen.getByText('Not in word list')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Not in word list');
   });
 
   it('renders the message text', () => {
     render(<FeedbackToast message="Test message" show={true} />);
-    expect(screen.getByText('Test message')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Test message');
   });
 
   it('hides after exit animation when show becomes false', () => {
     const { rerender } = render(
       <FeedbackToast message="Not in word list" show={true} />
     );
-    expect(screen.getByText('Not in word list')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
 
     rerender(<FeedbackToast message="Not in word list" show={false} />);
 
@@ -33,6 +33,6 @@ describe('FeedbackToast', () => {
       vi.advanceTimersByTime(300);
     });
 
-    expect(screen.queryByText('Not in word list')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

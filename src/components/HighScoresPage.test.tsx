@@ -31,14 +31,14 @@ describe('HighScoresPage', () => {
 
   it('renders mode tabs: Insane, Hard, Relaxed', () => {
     render(<HighScoresPage onBack={vi.fn()} />);
-    expect(screen.getByText('Insane')).toBeInTheDocument();
-    expect(screen.getByText('Hard')).toBeInTheDocument();
-    expect(screen.getByText('Relaxed')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /insane/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /hard/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /relaxed/i })).toBeInTheDocument();
   });
 
   it('defaults to Insane tab selected', () => {
     render(<HighScoresPage onBack={vi.fn()} />);
-    const insaneBtn = screen.getByText('Insane');
+    const insaneBtn = screen.getByRole('button', { name: /insane/i });
     expect(insaneBtn.className).toContain('active');
   });
 
@@ -57,7 +57,7 @@ describe('HighScoresPage', () => {
   it('filters by mode when tab clicked', async () => {
     setupScores();
     render(<HighScoresPage onBack={vi.fn()} />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     expect(screen.getByText('180')).toBeInTheDocument();
     expect(screen.queryByText('420')).not.toBeInTheDocument();
   });
@@ -76,14 +76,14 @@ describe('HighScoresPage', () => {
   it('calls onBack when back button clicked', async () => {
     const onBack = vi.fn();
     render(<HighScoresPage onBack={onBack} />);
-    await userEvent.click(screen.getByText('Back'));
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
     expect(onBack).toHaveBeenCalledOnce();
   });
 
   it('shows reset confirmation when reset clicked', async () => {
     setupScores();
     render(<HighScoresPage onBack={vi.fn()} />);
-    await userEvent.click(screen.getByText('Reset Scores'));
+    await userEvent.click(screen.getByRole('button', { name: 'Reset Scores' }));
     expect(screen.getByText(/clear all insane scores/i)).toBeInTheDocument();
   });
 });

@@ -8,14 +8,14 @@ describe('GameOverOverlay', () => {
     render(
       <GameOverOverlay status="won" hiddenWord="HELLO" onPlayAgain={vi.fn()} />
     );
-    expect(screen.getByText('You won!')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'You won!' })).toBeInTheDocument();
   });
 
   it('shows "Game Over" for lost status', () => {
     render(
       <GameOverOverlay status="lost" hiddenWord="HELLO" onPlayAgain={vi.fn()} />
     );
-    expect(screen.getByText('Game Over')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
   });
 
   it('reveals hidden word', () => {
@@ -30,7 +30,7 @@ describe('GameOverOverlay', () => {
     render(
       <GameOverOverlay status="won" hiddenWord="HELLO" onPlayAgain={onPlayAgain} />
     );
-    await userEvent.click(screen.getByText('Play Again'));
+    await userEvent.click(screen.getByRole('button', { name: 'Play Again' }));
     expect(onPlayAgain).toHaveBeenCalled();
   });
 
@@ -76,7 +76,7 @@ describe('GameOverOverlay', () => {
         onViewScores={onViewScores}
       />
     );
-    await userEvent.click(screen.getByText('View High Scores'));
+    await userEvent.click(screen.getByRole('button', { name: 'View High Scores' }));
     expect(onViewScores).toHaveBeenCalledOnce();
   });
 
@@ -85,6 +85,6 @@ describe('GameOverOverlay', () => {
       <GameOverOverlay status="lost" hiddenWord="HELLO" onPlayAgain={vi.fn()} />
     );
     expect(screen.queryByText(/scored/i)).not.toBeInTheDocument();
-    expect(screen.queryByText('View High Scores')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View High Scores' })).not.toBeInTheDocument();
   });
 });

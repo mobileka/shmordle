@@ -22,28 +22,28 @@ describe('DifficultyPicker', () => {
   it('calls onPick with correct difficulty on click', async () => {
     const onPick = vi.fn();
     render(<DifficultyPicker defaultDifficulty="zen" onPick={onPick} />);
-    await userEvent.click(screen.getByText('Insane'));
+    await userEvent.click(screen.getByRole('button', { name: /insane/i }));
     expect(onPick).toHaveBeenCalledWith('insane');
   });
 
   it('calls onPick with Hard when Hard is clicked', async () => {
     const onPick = vi.fn();
     render(<DifficultyPicker defaultDifficulty="zen" onPick={onPick} />);
-    await userEvent.click(screen.getByText('Hard'));
+    await userEvent.click(screen.getByRole('button', { name: /hard/i }));
     expect(onPick).toHaveBeenCalledWith('hard');
   });
 
   it('calls onPick with Relaxed when Relaxed is clicked', async () => {
     const onPick = vi.fn();
     render(<DifficultyPicker defaultDifficulty="zen" onPick={onPick} />);
-    await userEvent.click(screen.getByText('Relaxed'));
+    await userEvent.click(screen.getByRole('button', { name: /relaxed/i }));
     expect(onPick).toHaveBeenCalledWith('relaxed');
   });
 
   it('calls onPick with Zen when Zen is clicked', async () => {
     const onPick = vi.fn();
     render(<DifficultyPicker defaultDifficulty="zen" onPick={onPick} />);
-    await userEvent.click(screen.getByText('🧘 Zen'));
+    await userEvent.click(screen.getByRole('button', { name: /zen/i }));
     expect(onPick).toHaveBeenCalledWith('zen');
   });
 
@@ -81,7 +81,7 @@ describe('DifficultyPicker', () => {
 
   it('highlights default difficulty', () => {
     render(<DifficultyPicker defaultDifficulty="hard" onPick={vi.fn()} />);
-    const hardButton = screen.getByText('Hard');
+    const hardButton = screen.getByRole('button', { name: /hard/i });
     expect(hardButton.className).toContain('selected');
   });
 });

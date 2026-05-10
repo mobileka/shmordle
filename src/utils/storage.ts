@@ -1,3 +1,4 @@
+import { DIFFICULTY } from '../types';
 import type { GameState, GameStatus, Difficulty, ScoreRecord, ScoresData } from '../types';
 
 const STORAGE_KEY = 'shmordle-game-state';
@@ -5,7 +6,6 @@ const PREFERRED_KEY = 'shmordle-preferred-difficulty';
 const SCORES_KEY = 'shmordle-scores';
 
 const VALID_STATUSES: GameStatus[] = ['playing', 'won', 'lost'];
-const VALID_DIFFICULTIES: Difficulty[] = ['zen', 'relaxed', 'hard', 'insane'];
 
 function isValidGameState(data: unknown): data is GameState {
   if (!data || typeof data !== 'object') return false;
@@ -18,7 +18,7 @@ function isValidGameState(data: unknown): data is GameState {
   if (!Array.isArray(obj.evaluations)) return false;
   if (!VALID_STATUSES.includes(obj.gameStatus as GameStatus)) return false;
   if (typeof obj.keyboardState !== 'object' || obj.keyboardState === null) return false;
-  if (!VALID_DIFFICULTIES.includes(obj.difficulty as Difficulty)) return false;
+  if (!DIFFICULTY.includes(obj.difficulty as Difficulty)) return false;
   if (typeof obj.startedAt !== 'number' || obj.startedAt <= 0) return false;
   if (typeof obj.streak !== 'number') return false;
   if (typeof obj.sessionPoints !== 'number') return false;
@@ -56,7 +56,7 @@ export function savePreferredDifficulty(difficulty: Difficulty): void {
 export function loadPreferredDifficulty(): Difficulty | null {
   const raw = localStorage.getItem(PREFERRED_KEY);
   if (!raw) return null;
-  if (!VALID_DIFFICULTIES.includes(raw as Difficulty)) return null;
+  if (!DIFFICULTY.includes(raw as Difficulty)) return null;
   return raw as Difficulty;
 }
 

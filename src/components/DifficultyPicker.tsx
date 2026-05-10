@@ -42,6 +42,7 @@ export function DifficultyPicker({ defaultDifficulty, onPick }: Props) {
             key={diff}
             className={`${styles.button} ${index === selectedIndex ? styles.selected : ''}`}
             onClick={() => onPick(diff)}
+            data-difficulty={diff}
           >
             {DIFFICULTY_CONFIG[diff].label}
           </button>
