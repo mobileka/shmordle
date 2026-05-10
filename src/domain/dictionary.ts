@@ -1,3 +1,12 @@
+/**
+ * Word dictionary and random word selection.
+ *
+ * Loads the embedded word list from `words.json`, provides validation
+ * of user guesses and random hidden word selection.
+ *
+ * @packageDocumentation
+ */
+
 import wordsDict from '../data/words.json';
 
 const dictionary: Set<string> = new Set(

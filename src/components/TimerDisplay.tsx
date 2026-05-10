@@ -1,3 +1,13 @@
+/**
+ * Countdown timer display.
+ *
+ * Shows remaining time in `M:SS` format with a smooth animated
+ * count-up when time bonus is added. Applies urgent styling when
+ * 10 seconds or fewer remain.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import styles from './TimerDisplay.module.css';
 

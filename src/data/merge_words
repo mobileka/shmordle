@@ -6,7 +6,7 @@ begin
   txt_words = File.readlines('words.txt', chomp: true)
   json_words = JSON.parse(File.read('words.json'))
   unique_words = (txt_words | json_words).sort
-  File.write('result.json', JSON.pretty_generate(unique_words))
+  File.write('words.json', JSON.pretty_generate(unique_words))
 
   puts "Success! result.json created with #{unique_words.length} unique words."
 rescue Errno::ENOENT => e

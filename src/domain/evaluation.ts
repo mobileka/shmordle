@@ -1,3 +1,12 @@
+/**
+ * Guess evaluation algorithm.
+ *
+ * Compares a player's guess against the hidden word and produces per-letter
+ * results (`correct`, `present`, `absent`) following Wordle-style rules.
+ *
+ * @packageDocumentation
+ */
+
 import type { LetterResult, LetterStatus } from './types';
 
 export function evaluateGuess(guess: string, hidden: string, size: number = 5): LetterResult[] {

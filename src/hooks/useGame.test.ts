@@ -111,6 +111,7 @@ describe('useGame hook', () => {
 
   it('loads persisted state from localStorage', async () => {
     const savedState: GameState = {
+      gameId: 'saved-game-id',
       hiddenWord: 'HELLO',
       guesses: ['WORLD'],
       currentGuess: 'QU',

@@ -1,5 +1,15 @@
+/**
+ * High scores page.
+ *
+ * Displays past game records in a paginated table with difficulty tabs
+ * (Insane, Hard, Relaxed). Supports per-difficulty score reset with
+ * a confirmation dialog.
+ *
+ * @packageDocumentation
+ */
+
 import { useState } from 'react';
-import { loadScores, clearScores } from '../infrastructure/storage';
+import { loadScores, clearScores } from '../storage/score';
 import { DIFFICULTY_CONFIG } from '../domain/types';
 import type { Difficulty } from '../domain/types';
 import { ConfirmDialog } from './ConfirmDialog';

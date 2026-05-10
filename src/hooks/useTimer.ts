@@ -1,3 +1,13 @@
+/**
+ * Countdown timer hook.
+ *
+ * Tracks remaining time based on the game's start timestamp and difficulty
+ * time limit. Signals expiration when time runs out and supports time-bonus
+ * extensions from streak rewards.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getRemainingTime } from '../domain/game';
 

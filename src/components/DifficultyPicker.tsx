@@ -1,3 +1,12 @@
+/**
+ * Difficulty selection screen.
+ *
+ * Lists all difficulty levels with keyboard navigation (Arrow Up/Down,
+ * Enter) and mouse click support. Saves the preferred difficulty on pick.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Difficulty } from '../domain/types';
 import { DIFFICULTY, DIFFICULTY_CONFIG } from '../domain/types';

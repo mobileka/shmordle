@@ -1,3 +1,13 @@
+/**
+ * On-screen QWERTY keyboard.
+ *
+ * Renders a 3-row keyboard with status-colored keys. Absent letters
+ * are visually dimmed and disabled. Supports letter input, Enter,
+ * and Backspace actions with a disabled mode.
+ *
+ * @packageDocumentation
+ */
+
 import type { LetterStatus } from '../domain/types';
 
 import styles from './VirtualKeyboard.module.css';

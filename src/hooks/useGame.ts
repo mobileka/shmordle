@@ -1,8 +1,19 @@
-import { useReducer, useState, useCallback, useEffect } from 'react';
+/**
+ * Main game hook.
+ *
+ * Bridges domain game logic to React state via a reducer-like pattern.
+ * Persists game state to localStorage on every change, manages UI-side
+ * effects (animations, streak toasts, new-best detection), and exposes
+ * action callbacks for the game view.
+ *
+ * @packageDocumentation
+ */
+
+import { useReducer, useState, useCallback, useEffect, useRef } from 'react';
 import type { GameState, Difficulty } from '../domain/types';
 import { isValidWord } from '../domain/dictionary';
-import { loadGameState, saveGameState, clearGameState } from '../infrastructure/storage';
-import { createGame, addLetter, removeLetter, submitGuess, forfeit, roundWin, roundPoints } from '../domain/game';
+import { loadGameState, saveGameState, clearGameState } from '../storage/gameState';
+import { createGame, addLetter, removeLetter, submitGuess, forfeit, roundWin, roundPoints, finalizeGameScore } from '../domain/game';
 
 function passThrough(_prev: GameState, next: GameState): GameState {
   return next;
@@ -15,9 +26,21 @@ export function useGame(difficulty: Difficulty) {
   const [invalidWord, setInvalidWord] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [streakToast, setStreakToast] = useState<{ points: number; streak: number } | null>(null);
+  const [isNewBest, setIsNewBest] = useState(false);
+  const finalizedRef = useRef<string | null>(null);
 
   useEffect(() => {
     saveGameState(state);
+  }, [state]);
+
+  useEffect(() => {
+    if (finalizedRef.current === state.gameId) return;
+
+    const result = finalizeGameScore(state);
+    if (result !== null) {
+      finalizedRef.current = state.gameId;
+      setIsNewBest(result);
+    }
   }, [state]);
 
   const inputDisabled = state.gameStatus !== 'playing' || animating;
@@ -69,6 +92,8 @@ export function useGame(difficulty: Difficulty) {
     setState(createGame(diff));
     setInvalidWord(false);
     setAnimating(false);
+    setIsNewBest(false);
+    finalizedRef.current = null;
   }, []);
 
   const handleForfeit = useCallback(() => {
@@ -81,6 +106,7 @@ export function useGame(difficulty: Difficulty) {
     animating,
     inputDisabled,
     streakToast,
+    isNewBest,
     addLetter: handleAddLetter,
     removeLetter: handleRemoveLetter,
     submitGuess: handleSubmitGuess,

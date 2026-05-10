@@ -1,3 +1,12 @@
+/**
+ * Physical keyboard listener hook.
+ *
+ * Maps `keydown` events to game actions (letter input, Enter, Backspace).
+ * Respects absent keys (blocked on physical input) and the disabled state.
+ *
+ * @packageDocumentation
+ */
+
 import { useEffect, useCallback } from 'react';
 import type { LetterStatus } from '../domain/types';
 

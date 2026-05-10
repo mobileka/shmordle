@@ -1,3 +1,12 @@
+/**
+ * Theme hook.
+ *
+ * Manages light/dark theme state, persists the user's preference to
+ * localStorage, and follows the system `prefers-color-scheme` by default.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 
 type Theme = 'light' | 'dark';

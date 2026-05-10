@@ -1,9 +1,17 @@
+/**
+ * Game state persistence layer.
+ *
+ * Saves, loads, validates, and clears the full game state
+ * (hidden word, guesses, evaluations, keyboard, streak, etc.)
+ * using localStorage.
+ *
+ * @packageDocumentation
+ */
+
 import { DIFFICULTY } from '../domain/types';
-import type { GameState, GameStatus, Difficulty, ScoreRecord, ScoresData } from '../domain/types';
+import type { GameState, GameStatus, Difficulty } from '../domain/types';
 
 const STORAGE_KEY = 'shmordle-game-state';
-const PREFERRED_KEY = 'shmordle-preferred-difficulty';
-const SCORES_KEY = 'shmordle-scores';
 
 const VALID_STATUSES: GameStatus[] = ['playing', 'won', 'lost'];
 
@@ -23,6 +31,7 @@ function isValidGameState(data: unknown): data is GameState {
   if (typeof obj.streak !== 'number') return false;
   if (typeof obj.sessionPoints !== 'number') return false;
   if (typeof obj.timeBonus !== 'number') return false;
+  if (obj.gameId !== undefined && typeof obj.gameId !== 'string') return false;
 
   return true;
 }
@@ -39,6 +48,10 @@ export function loadGameState(): GameState | null {
     const parsed = JSON.parse(raw);
     if (!isValidGameState(parsed)) return null;
 
+    if (!parsed.gameId) {
+      parsed.gameId = crypto.randomUUID();
+    }
+
     return parsed;
   } catch {
     return null;
@@ -47,41 +60,4 @@ export function loadGameState(): GameState | null {
 
 export function clearGameState(): void {
   localStorage.removeItem(STORAGE_KEY);
-}
-
-export function savePreferredDifficulty(difficulty: Difficulty): void {
-  localStorage.setItem(PREFERRED_KEY, difficulty);
-}
-
-export function loadPreferredDifficulty(): Difficulty | null {
-  const raw = localStorage.getItem(PREFERRED_KEY);
-  if (!raw) return null;
-  if (!DIFFICULTY.includes(raw as Difficulty)) return null;
-  return raw as Difficulty;
-}
-
-export function saveScore(record: ScoreRecord): void {
-  const data = loadScores();
-  data.records.push(record);
-  localStorage.setItem(SCORES_KEY, JSON.stringify(data));
-}
-
-export function loadScores(): ScoresData {
-  try {
-    const raw = localStorage.getItem(SCORES_KEY);
-    if (!raw) return { records: [] };
-
-    const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.records)) return { records: [] };
-
-    return parsed;
-  } catch {
-    return { records: [] };
-  }
-}
-
-export function clearScores(difficulty: Difficulty): void {
-  const data = loadScores();
-  data.records = data.records.filter((r) => r.difficulty !== difficulty);
-  localStorage.setItem(SCORES_KEY, JSON.stringify(data));
 }

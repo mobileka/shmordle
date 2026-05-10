@@ -1,3 +1,12 @@
+/**
+ * Core type definitions and difficulty configuration.
+ *
+ * Contains all shared types used across the application: letter statuses,
+ * game state shape, difficulty levels, score records, and DTO schemas.
+ *
+ * @packageDocumentation
+ */
+
 // Feedback shown on a single tile after a guess is evaluated.
 // 'default' — no evaluation yet (tile/key shows default styling).
 // 'absent' — letter not in hidden word (grey tile, key becomes disabled).
@@ -31,7 +40,7 @@ export const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; timeLimit: n
 
 // One entry in the high score history, persisted to localStorage under 'shmordle-scores'.
 export interface ScoreRecord {
-  id: number;
+  id: string;
   difficulty: Difficulty;
   maxStreak: number;
   totalPoints: number;
@@ -46,6 +55,7 @@ export interface ScoresData {
 // Full game state serialised to localStorage under 'shmordle-game-state'.
 // Restored on page load so the player can continue (or resume a lost game).
 export interface GameState {
+  gameId: string;
   hiddenWord: string;
   guesses: string[];
   currentGuess: string;

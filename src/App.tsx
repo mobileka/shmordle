@@ -1,3 +1,13 @@
+/**
+ * Top-level application router.
+ *
+ * Decides which screen to show — difficulty picker, game, or high scores —
+ * based on saved game state and user navigation. Holds the mutually-agreed
+ * difficulty between App and GameArea.
+ *
+ * @packageDocumentation
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import { useGame } from './hooks/useGame';
 import { useKeyboard } from './hooks/useKeyboard';
@@ -11,7 +21,8 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { DifficultyPicker } from './components/DifficultyPicker';
 import { StreakToast } from './components/StreakToast';
 import { HighScoresPage } from './components/HighScoresPage';
-import { loadGameState, clearGameState, savePreferredDifficulty, loadPreferredDifficulty, loadScores, saveScore } from './infrastructure/storage';
+import { loadGameState, clearGameState } from './storage/gameState';
+import { savePreferredDifficulty, loadPreferredDifficulty } from './storage/difficulty';
 import { DIFFICULTY_CONFIG } from './domain/types';
 import type { Difficulty } from './domain/types';
 
@@ -46,6 +57,7 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     streak,
     timeBonus,
     streakToast,
+    isNewBest,
     addLetter,
     removeLetter,
     submitGuess,
@@ -55,10 +67,6 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
 
   // Whether the give-up confirmation dialog is open.
   const [pendingGiveUp, setPendingGiveUp] = useState(false);
-  // Prevents the time-up score-save effect from firing more than once.
-  const [timeUpHandled, setTimeUpHandled] = useState(false);
-  // Whether this session beats the player's previous best for this difficulty.
-  const [isNewBest, setIsNewBest] = useState(false);
 
   const baseTimeLimit = DIFFICULTY_CONFIG[difficulty].timeLimit;
   // The player's accumulated time bonus extends the base time limit.
@@ -73,27 +81,12 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     gameStatus === 'playing'
   );
 
-  // When the timer expires: forfeit, save the score, and flag if it's a new best.
+  // When the timer expires: forfeit the game.
   useEffect(() => {
-    if (isExpired && !timeUpHandled) {
-      setTimeUpHandled(true);
+    if (isExpired) {
       forfeit();
-      if (difficulty !== 'zen') {
-        const existing = loadScores();
-        const bestForDiff = existing.records
-          .filter((r) => r.difficulty === difficulty)
-          .reduce((max, r) => Math.max(max, r.totalPoints), 0);
-        if (sessionPoints > bestForDiff) setIsNewBest(true);
-        saveScore({
-          id: Date.now(),
-          difficulty,
-          maxStreak: streak,
-          totalPoints: sessionPoints,
-          date: Date.now(),
-        });
-      }
     }
-  }, [isExpired, timeUpHandled, forfeit, difficulty, sessionPoints, streak]);
+  }, [isExpired, forfeit]);
 
   // Listen for physical keyboard input (letters, Enter, Backspace).
   // Greyed-out keys on the virtual keyboard are also blocked on physical input.
@@ -108,24 +101,10 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
   // Open the give-up confirmation dialog.
   const handleGiveUpClick = () => setPendingGiveUp(true);
 
-  // User confirms give-up: forfeit the game and persist the session score.
+  // User confirms give-up: forfeit the game.
   const handleConfirmGiveUp = () => {
     setPendingGiveUp(false);
     forfeit();
-    if (difficulty !== 'zen') {
-      const existing = loadScores();
-      const bestForDiff = existing.records
-        .filter((r) => r.difficulty === difficulty)
-        .reduce((max, r) => Math.max(max, r.totalPoints), 0);
-      if (sessionPoints > bestForDiff) setIsNewBest(true);
-      saveScore({
-        id: Date.now(),
-        difficulty,
-        maxStreak: streak,
-        totalPoints: sessionPoints,
-        date: Date.now(),
-      });
-    }
   };
 
   // User cancels the give-up dialog — just close it.

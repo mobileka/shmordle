@@ -1,12 +1,24 @@
+/**
+ * Game state machine and scoring logic.
+ *
+ * Pure functions that implement the core game rules: creating games,
+ * adding/removing letters, submitting guesses, forfeiting, streak-based
+ * round scoring, and building score records.
+ *
+ * @packageDocumentation
+ */
+
 import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty, ScoreRecord } from './types';
 import { DIFFICULTY_CONFIG } from './types';
 import { evaluateGuess } from './evaluation';
 import { getRandomWord } from './dictionary';
+import { loadScores, saveScore } from '../storage/score';
 
 const MAX_GUESSES = 6;
 
 export function createGame(difficulty: Difficulty): GameState {
   return {
+    gameId: crypto.randomUUID(),
     hiddenWord: getRandomWord(),
     guesses: [],
     currentGuess: '',
@@ -55,6 +67,7 @@ export function submitGuess(state: GameState): GameState {
 }
 
 export function forfeit(state: GameState): GameState {
+  if (state.gameStatus !== 'playing') return state;
   return { ...state, gameStatus: 'lost' };
 }
 
@@ -120,7 +133,7 @@ export function getRemainingTime(startedAt: number, timeLimit: number): number {
 
 export function buildScoreRecord(state: GameState): ScoreRecord {
   return {
-    id: Date.now(),
+    id: state.gameId,
     difficulty: state.difficulty,
     maxStreak: state.streak,
     totalPoints: state.sessionPoints,
@@ -128,9 +141,18 @@ export function buildScoreRecord(state: GameState): ScoreRecord {
   };
 }
 
-export function isPersonalBest(records: ScoreRecord[], record: ScoreRecord): boolean {
+export function isPersonalBest(records: ScoreRecord[], difficulty: Difficulty, totalPoints: number): boolean {
   const bestForDiff = records
-    .filter((r) => r.difficulty === record.difficulty)
+    .filter((r) => r.difficulty === difficulty)
     .reduce((max, r) => Math.max(max, r.totalPoints), 0);
-  return record.totalPoints > bestForDiff;
+  return totalPoints > bestForDiff;
+}
+
+export function finalizeGameScore(state: GameState): boolean | null {
+  if (state.gameStatus !== 'lost' || state.difficulty === 'zen') return null;
+  const records = loadScores().records;
+  const record = buildScoreRecord(state);
+  const isNewBest = isPersonalBest(records, state.difficulty, state.sessionPoints);
+  saveScore(record);
+  return isNewBest;
 }

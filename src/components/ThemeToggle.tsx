@@ -1,3 +1,12 @@
+/**
+ * Light/dark theme toggle button.
+ *
+ * Renders a sun icon in light mode and a moon icon in dark mode.
+ * Delegates state management to the `useTheme` hook.
+ *
+ * @packageDocumentation
+ */
+
 import { useTheme } from '../hooks/useTheme';
 import styles from './ThemeToggle.module.css';
 

@@ -1,3 +1,12 @@
+/**
+ * End-of-game overlay.
+ *
+ * Shows the game result (won/lost), the hidden word, score, streak,
+ * optional new-personal-best badge, and actions (Play Again, View Scores).
+ *
+ * @packageDocumentation
+ */
+
 import { DIFFICULTY_CONFIG } from '../domain/types';
 import type { Difficulty } from '../domain/types';
 import styles from './GameOverOverlay.module.css';

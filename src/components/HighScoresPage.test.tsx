@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HighScoresPage } from './HighScoresPage';
-import { saveScore } from '../infrastructure/storage';
+import { saveScore } from '../storage/score';
 import type { Difficulty } from '../domain/types';
 
 const store = new Map<string, string>();
@@ -14,9 +14,9 @@ const localStorageMock = {
 };
 
 function setupScores() {
-  saveScore({ id: 1, difficulty: 'insane' as Difficulty, maxStreak: 5, totalPoints: 420, date: 1700000000000 });
-  saveScore({ id: 2, difficulty: 'hard' as Difficulty, maxStreak: 3, totalPoints: 180, date: 1700000001000 });
-  saveScore({ id: 3, difficulty: 'insane' as Difficulty, maxStreak: 2, totalPoints: 90, date: 1700000002000 });
+  saveScore({ id: '1', difficulty: 'insane' as Difficulty, maxStreak: 5, totalPoints: 420, date: 1700000000000 });
+  saveScore({ id: '2', difficulty: 'hard' as Difficulty, maxStreak: 3, totalPoints: 180, date: 1700000001000 });
+  saveScore({ id: '3', difficulty: 'insane' as Difficulty, maxStreak: 2, totalPoints: 90, date: 1700000002000 });
 }
 
 describe('HighScoresPage', () => {
