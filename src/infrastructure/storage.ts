@@ -17,7 +17,7 @@ function isValidGameState(data: unknown): data is GameState {
   if (typeof obj.currentGuess !== 'string') return false;
   if (!Array.isArray(obj.evaluations)) return false;
   if (!VALID_STATUSES.includes(obj.gameStatus as GameStatus)) return false;
-  if (typeof obj.keyboardState !== 'object' || obj.keyboardState === null) return false;
+  if (typeof obj.virtualKeyboardState !== 'object' || obj.virtualKeyboardState === null) return false;
   if (!DIFFICULTY.includes(obj.difficulty as Difficulty)) return false;
   if (typeof obj.startedAt !== 'number' || obj.startedAt <= 0) return false;
   if (typeof obj.streak !== 'number') return false;

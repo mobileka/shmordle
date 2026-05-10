@@ -37,7 +37,7 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     currentGuess,
     evaluations,
     gameStatus,
-    keyboardState,
+    virtualKeyboardState,
     invalidWord,
     animating,
     inputDisabled,
@@ -101,7 +101,7 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
     onLetter: addLetter,
     onEnter: submitGuess,
     onBackspace: removeLetter,
-    keyboardState,
+    virtualKeyboardState,
     disabled: inputDisabled,
   });
 
@@ -155,7 +155,7 @@ function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
           animating={animating}
         />
         <VirtualKeyboard
-          keyboardState={keyboardState}
+          virtualKeyboardState={virtualKeyboardState}
           onLetter={addLetter}
           onEnter={submitGuess}
           onBackspace={removeLetter}

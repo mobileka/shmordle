@@ -51,7 +51,7 @@ export interface GameState {
   currentGuess: string;
   evaluations: LetterResult[][];
   gameStatus: GameStatus;
-  keyboardState: Record<string, LetterStatus>;
+  virtualKeyboardState: Record<string, LetterStatus>;
   difficulty: Difficulty;
   startedAt: number;
   streak: number;

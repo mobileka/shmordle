@@ -12,7 +12,7 @@ const validState: GameState = {
   currentGuess: 'QU',
   evaluations: [[{ letter: 'W', status: 'absent' }]],
   gameStatus: 'playing',
-  keyboardState: { W: 'absent' },
+  virtualKeyboardState: { W: 'absent' },
   difficulty: 'hard' as Difficulty,
   startedAt: Date.now(),
   streak: 1,

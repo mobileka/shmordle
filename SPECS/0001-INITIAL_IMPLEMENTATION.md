@@ -32,7 +32,7 @@ interface GameState {
   currentGuess: string;
   evaluations: LetterResult[][];
   gameStatus: 'playing' | 'won' | 'lost';
-  keyboardState: Record<string, LetterStatus>;
+  virtualKeyboardState: Record<string, LetterStatus>;
 }
 ```
 
@@ -134,7 +134,7 @@ After evaluation, animate the tiles before showing the result:
 
 1. Append the evaluated `currentGuess` and its `LetterResult[]` to `guesses` and `evaluations`.
 2. Clear `currentGuess` for the next row.
-3. Update `keyboardState` using **best-status-wins** priority:
+3. Update `virtualKeyboardState` using **best-status-wins** priority:
    - `correct` (green) > `present` (orange) > `absent` (grey) > `default`
    - Once a letter is `absent`, it is greyed and disabled.
    - A later guess can **upgrade** the status (e.g., grey → orange → green), re-enabling the key.

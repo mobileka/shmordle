@@ -216,7 +216,7 @@ describe('App integration', () => {
         { letter: 'D', status: 'absent' },
       ]],
       gameStatus: 'playing',
-      keyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
+      virtualKeyboardState: { W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent' },
       difficulty: 'relaxed',
       startedAt: Date.now(),
       streak: 1,

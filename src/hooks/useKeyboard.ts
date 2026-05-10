@@ -5,7 +5,7 @@ interface UseKeyboardOptions {
   onLetter: (letter: string) => void;
   onEnter: () => void;
   onBackspace: () => void;
-  keyboardState: Record<string, LetterStatus>;
+  virtualKeyboardState: Record<string, LetterStatus>;
   disabled: boolean;
 }
 
@@ -13,7 +13,7 @@ export function useKeyboard({
   onLetter,
   onEnter,
   onBackspace,
-  keyboardState,
+  virtualKeyboardState,
   disabled,
 }: UseKeyboardOptions) {
   const handleKeyDown = useCallback(
@@ -37,12 +37,12 @@ export function useKeyboard({
 
       if (/^[a-zA-Z]$/.test(key)) {
         const upper = key.toUpperCase();
-        if (keyboardState[upper] === 'absent') return;
+        if (virtualKeyboardState[upper] === 'absent') return;
         e.preventDefault();
         onLetter(upper);
       }
     },
-    [onLetter, onEnter, onBackspace, keyboardState, disabled]
+    [onLetter, onEnter, onBackspace, virtualKeyboardState, disabled]
   );
 
   useEffect(() => {

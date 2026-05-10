@@ -5,7 +5,7 @@ import { VirtualKeyboard } from './VirtualKeyboard';
 
 describe('VirtualKeyboard', () => {
   const defaultProps = {
-    keyboardState: {},
+    virtualKeyboardState: {},
     onLetter: vi.fn(),
     onEnter: vi.fn(),
     onBackspace: vi.fn(),
@@ -33,7 +33,7 @@ describe('VirtualKeyboard', () => {
     render(
       <VirtualKeyboard
         {...defaultProps}
-        keyboardState={{ A: 'correct', B: 'present', C: 'absent' }}
+        virtualKeyboardState={{ A: 'correct', B: 'present', C: 'absent' }}
       />
     );
     expect(screen.getByRole('button', { name: 'A' }).className).toContain('correct');
@@ -43,7 +43,7 @@ describe('VirtualKeyboard', () => {
 
   it('disables absent keys', () => {
     render(
-      <VirtualKeyboard {...defaultProps} keyboardState={{ A: 'absent' }} />
+      <VirtualKeyboard {...defaultProps} virtualKeyboardState={{ A: 'absent' }} />
     );
     expect(screen.getByRole('button', { name: 'A' })).toBeDisabled();
   });

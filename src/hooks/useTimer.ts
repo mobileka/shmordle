@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getRemainingTime } from '../domain/game';
 
 interface UseTimerResult {
   timeRemaining: number | null;
   isExpired: boolean;
-}
-
-function calcRemaining(startedAt: number, timeLimit: number): number {
-  const elapsed = (Date.now() - startedAt) / 1000;
-  return Math.max(0, Math.floor(timeLimit - elapsed));
 }
 
 export function useTimer(
@@ -17,12 +13,12 @@ export function useTimer(
 ): UseTimerResult {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(() => {
     if (timeLimit === null) return null;
-    return calcRemaining(startedAt, timeLimit);
+    return getRemainingTime(startedAt, timeLimit);
   });
 
   const [isExpired, setIsExpired] = useState(() => {
     if (timeLimit === null) return false;
-    return calcRemaining(startedAt, timeLimit) <= 0;
+    return getRemainingTime(startedAt, timeLimit) <= 0;
   });
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -50,7 +46,7 @@ export function useTimer(
 
   useEffect(() => {
     if (timeLimit !== null) {
-      const remaining = calcRemaining(startedAt, timeLimit);
+      const remaining = getRemainingTime(startedAt, timeLimit);
       setTimeRemaining(remaining);
       if (remaining <= 0) {
         setIsExpired(true);
