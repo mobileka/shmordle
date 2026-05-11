@@ -36,10 +36,20 @@ describe('evaluateGuess', () => {
         expect(result[3]).toEqual({ letter: 'E', status: 'absent' });
       });
 
-      it('marks only the first instance correct asdasdasd', () => {
+      it('marks only the first instance correct2', () => {
         const result = evaluateGuess('SPEED', 'XXXEX');
         expect(result[2]).toEqual({ letter: 'E', status: 'absent' });
         expect(result[3]).toEqual({ letter: 'E', status: 'correct' });
+      });
+
+      it('handles REFER vs RETRY correctly', () => {
+        const result = evaluateGuess('REFER', 'RETRY');
+
+        expect(result[0]).toEqual({ letter: 'R', status: 'correct' });
+        expect(result[1]).toEqual({ letter: 'E', status: 'correct' });
+        expect(result[2]).toEqual({ letter: 'F', status: 'absent' });
+        expect(result[3]).toEqual({ letter: 'E', status: 'absent' });
+        expect(result[4]).toEqual({ letter: 'R', status: 'present' });
       });
     });
 
