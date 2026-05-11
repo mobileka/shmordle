@@ -16,23 +16,37 @@ interface UseTimerResult {
   isExpired: boolean;
 }
 
+/**
+ * A countdown timer that ticks every second.
+ *
+ * @param startedAt - The game start timestamp (ms since epoch).
+ * @param timeLimit - The total time limit in seconds, or null for no timer (Zen mode).
+ * @param running - Whether the timer should actively tick.
+ * @returns An object with:
+ *   - timeRemaining: seconds left (null if Zen mode),
+ *   - isExpired: true when the timer has reached zero.
+ */
 export function useTimer(
   startedAt: number,
   timeLimit: number | null,
   running: boolean
 ): UseTimerResult {
+  // Initialize timeRemaining from the domain calculation.
   const [timeRemaining, setTimeRemaining] = useState<number | null>(() => {
     if (timeLimit === null) return null;
     return getRemainingTime(startedAt, timeLimit);
   });
 
+  // Initialize isExpired based on whether time has already run out.
   const [isExpired, setIsExpired] = useState(() => {
     if (timeLimit === null) return false;
     return getRemainingTime(startedAt, timeLimit) <= 0;
   });
 
+  // Ref to store the interval ID so we can clear it on cleanup or pause.
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  /** Decrements the timer by 1 second, stopping at 0. */
   const tick = useCallback(() => {
     setTimeRemaining((prev) => {
       if (prev === null || prev <= 1) {
@@ -42,6 +56,8 @@ export function useTimer(
     });
   }, []);
 
+  // Effect 1: Detect when the timer reaches zero and signal expiration.
+  // Also cleans up the interval to prevent further ticks.
   useEffect(() => {
     if (timeLimit === null) return;
 
@@ -54,6 +70,8 @@ export function useTimer(
     }
   }, [timeRemaining, timeLimit]);
 
+  // Effect 2: Re-sync the timer when the start time or time limit changes.
+  // This handles time-bonus extensions from streak rewards.
   useEffect(() => {
     if (timeLimit !== null) {
       const remaining = getRemainingTime(startedAt, timeLimit);
@@ -66,6 +84,7 @@ export function useTimer(
     }
   }, [startedAt, timeLimit]);
 
+  // Effect 3: Start or stop the 1-second interval based on running state.
   useEffect(() => {
     if (timeLimit === null || !running) {
       if (intervalRef.current) {
