@@ -15,29 +15,45 @@ import type { Difficulty } from '../domain/types';
 import { ConfirmDialog } from './ConfirmDialog';
 import styles from './HighScoresPage.module.css';
 
+// Difficulties that support scoring (Zen is excluded — no scores).
 const MODES: Difficulty[] = ['insane', 'hard', 'relaxed'];
 
 interface Props {
   onBack: () => void;
 }
 
+/**
+ * Formats a Unix timestamp into a short human-readable date.
+ *
+ * @param ts - Milliseconds since epoch.
+ * @returns A string like "Jan 15, 2024".
+ */
 function formatDate(ts: number): string {
   const d = new Date(ts);
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
+/**
+ * Renders the high scores page with per-difficulty tabs.
+ *
+ * Records are sorted by date (newest first). The header uses a three-part
+ * flex layout (back button, title, empty spacer) for centering the title.
+ */
 export function HighScoresPage({ onBack }: Props) {
   const [mode, setMode] = useState<Difficulty>('insane');
   const [showReset, setShowReset] = useState(false);
   const [scores, setScores] = useState(() => loadScores());
 
+  /** Reloads scores from localStorage into local state. */
   const reload = () => setScores(loadScores());
 
+  // Filter records for the active difficulty, sorted newest first.
   const filteredRecords = scores.records
     .filter((r) => r.difficulty === mode)
     .sort((a, b) => b.date - a.date);
 
+  /** Clears all scores for the current difficulty after confirmation. */
   const handleReset = () => {
     clearScores(mode);
     reload();
@@ -51,6 +67,7 @@ export function HighScoresPage({ onBack }: Props) {
           Back
         </button>
         <h1 className={styles.title}>High Scores</h1>
+        {/* Empty spacer to balance the flex layout and center the title. */}
         <div />
       </div>
 

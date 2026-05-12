@@ -18,6 +18,17 @@ interface Props {
   shouldAnimate?: boolean;
 }
 
+/**
+ * Renders a single row of 5 cells.
+ *
+ * When `evaluation` is provided, cells are colored based on the result
+ * (correct/present/absent). When absent, the row shows the player's
+ * current typing progress with uncolored tiles.
+ *
+ * The `isFilled` flag distinguishes between a cell that has a letter
+ * the player typed (should have a visible border) versus an empty cell
+ * in an evaluated row (no border, no letter).
+ */
 export function GridRow({ guess, evaluation, shouldAnimate }: Props) {
   const cells = [];
   for (let i = 0; i < 5; i++) {
@@ -26,6 +37,8 @@ export function GridRow({ guess, evaluation, shouldAnimate }: Props) {
     if (evaluation) {
       status = evaluation[i].status;
     }
+    // A cell is "filled" when it has a letter but has not been evaluated yet.
+    // This gives the typed letter a visible border before submission.
     const isFilled = !!letter && !evaluation;
     cells.push(
       <GridCell
