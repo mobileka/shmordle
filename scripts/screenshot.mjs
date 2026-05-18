@@ -18,7 +18,7 @@ const gameState = {
       { letter: 'W', status: 'absent' },
       { letter: 'O', status: 'present' },
       { letter: 'R', status: 'absent' },
-      { letter: 'L', status: 'present' },
+      { letter: 'L', status: 'correct' },
       { letter: 'D', status: 'absent' },
     ],
     [
@@ -31,7 +31,7 @@ const gameState = {
   ],
   gameStatus: 'playing',
   virtualKeyboardState: {
-    W: 'absent', O: 'present', R: 'absent', L: 'present', D: 'absent',
+    W: 'absent', O: 'present', R: 'absent', L: 'correct', D: 'absent',
     P: 'absent', A: 'absent', N: 'absent', E: 'present',
   },
   difficulty: 'hard',
@@ -78,11 +78,11 @@ async function main() {
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 500, height: 900, deviceScaleFactor: 2 });
+    await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 3 });
 
     await page.evaluateOnNewDocument((state, theme) => {
       localStorage.setItem('shmordle-game-state', JSON.stringify(state));
-      localStorage.setItem('shmordle-theme', theme);
+      localStorage.setItem('theme', theme);
     }, gameState, 'light');
 
     console.log('Navigating to app...');
@@ -90,7 +90,8 @@ async function main() {
 
     await page.waitForSelector('main', { timeout: 10_000 });
 
-    await new Promise((r) => setTimeout(r, 500));
+    await page.evaluate(() => document.fonts.ready);
+    await new Promise((r) => setTimeout(r, 200));
 
     const outputPath = join(ROOT, 'screenshot.png');
     await page.screenshot({ path: outputPath, type: 'png' });
