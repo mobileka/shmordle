@@ -12,8 +12,12 @@
 import { useReducer, useState, useCallback, useEffect, useRef } from 'react';
 import type { GameState, Difficulty } from '../domain/types';
 import { isValidWord } from '../domain/dictionary';
-import { loadGameState, saveGameState, clearGameState } from '../storage/gameState';
-import { createGame, addLetter, removeLetter, submitGuess, forfeit, roundWin, roundPoints, finalizeGameScore } from '../domain/game';
+import { loadGameState, saveGameState } from '../storage/gameState';
+import { loadScores, saveScore } from '../storage/score';
+import { createGame, addLetter, removeLetter, submitGuess, forfeit, roundWin, roundPoints, buildScoreRecord, isPersonalBest } from '../domain/game';
+
+// Duration of the tile-flip reveal animation (5 tiles × 300ms stagger + 300ms animation).
+const REVEAL_ANIMATION_MS = 1600;
 
 /**
  * Identity reducer — always returns the next state as-is.
@@ -44,6 +48,10 @@ export function useGame(difficulty: Difficulty) {
   // Ref to track which game ID has already had its score finalized.
   // Prevents duplicate score saves when the state changes after game over.
   const finalizedRef = useRef<string | null>(null);
+  // Ref holding the latest game state so callbacks stay stable across renders.
+  // Avoids re-registering keyboard listeners on every keystroke.
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // Persist the game state to localStorage on every change.
   useEffect(() => {
@@ -55,12 +63,15 @@ export function useGame(difficulty: Difficulty) {
   // trigger this effect multiple times after game over.
   useEffect(() => {
     if (finalizedRef.current === state.gameId) return;
+    if (state.gameStatus !== 'lost' || state.difficulty === 'zen') return;
 
-    const result = finalizeGameScore(state);
-    if (result !== null) {
-      finalizedRef.current = state.gameId;
-      setIsNewBest(result);
-    }
+    const records = loadScores().records;
+    const record = buildScoreRecord(state);
+    const result = isPersonalBest(records, state.difficulty, state.sessionPoints);
+    saveScore(record);
+
+    finalizedRef.current = state.gameId;
+    setIsNewBest(result);
   }, [state]);
 
   // Input is disabled when the game is not playing or during the tile-flip animation.
@@ -70,16 +81,16 @@ export function useGame(difficulty: Difficulty) {
   const handleAddLetter = useCallback(
     (letter: string) => {
       if (inputDisabled) return;
-      setState(addLetter(state, letter));
+      setState(addLetter(stateRef.current, letter));
     },
-    [inputDisabled, state]
+    [inputDisabled]
   );
 
   /** Handles backspace input from the virtual or physical keyboard. */
   const handleRemoveLetter = useCallback(() => {
     if (inputDisabled) return;
-    setState(removeLetter(state));
-  }, [inputDisabled, state]);
+    setState(removeLetter(stateRef.current));
+  }, [inputDisabled]);
 
   /**
    * Handles Enter / guess submission.
@@ -90,54 +101,42 @@ export function useGame(difficulty: Difficulty) {
    */
   const handleSubmitGuess = useCallback(() => {
     if (inputDisabled) return;
-    if (state.currentGuess.length !== 5) return;
+    const s = stateRef.current;
+    if (s.currentGuess.length !== 5) return;
 
     // Reject words not in the dictionary.
-    if (!isValidWord(state.currentGuess)) {
+    if (!isValidWord(s.currentGuess)) {
       setInvalidWord(true);
       setTimeout(() => setInvalidWord(false), 2000);
       return;
     }
 
-    const isWin = state.currentGuess === state.hiddenWord;
-    const isNonZen = state.difficulty !== 'zen';
+    const isWin = s.currentGuess === s.hiddenWord;
+    const isNonZen = s.difficulty !== 'zen';
 
     // Correct guess in a timed mode: award points and start a new round.
     if (isWin && isNonZen) {
-      const points = roundPoints(state);
-      setState(roundWin(state));
-      setStreakToast({ points, streak: state.streak + 1 });
+      const points = roundPoints(s);
+      setState(roundWin(s));
+      setStreakToast({ points, streak: s.streak + 1 });
       return;
     }
 
     // Normal guess submission (wrong word, or Zen mode where scoring is disabled).
-    setState(submitGuess(state));
+    setState(submitGuess(s));
     setAnimating(true);
-    setTimeout(() => setAnimating(false), 1600);
-  }, [inputDisabled, state]);
+    setTimeout(() => setAnimating(false), REVEAL_ANIMATION_MS);
+  }, [inputDisabled]);
 
   /** Dismisses the streak toast notification. */
   const handleDismissStreakToast = useCallback(() => {
     setStreakToast(null);
   }, []);
 
-  /**
-   * Starts a brand new game. Clears persisted state and resets all UI flags.
-   * Note: this is defined but not currently used by the App router.
-   */
-  const handleStartGame = useCallback((diff: Difficulty) => {
-    clearGameState();
-    setState(createGame(diff));
-    setInvalidWord(false);
-    setAnimating(false);
-    setIsNewBest(false);
-    finalizedRef.current = null;
-  }, []);
-
   /** Forfeits the current round, ending the game as a loss. */
   const handleForfeit = useCallback(() => {
-    setState(forfeit(state));
-  }, [state]);
+    setState(forfeit(stateRef.current));
+  }, []);
 
   return {
     ...state,
@@ -149,7 +148,6 @@ export function useGame(difficulty: Difficulty) {
     addLetter: handleAddLetter,
     removeLetter: handleRemoveLetter,
     submitGuess: handleSubmitGuess,
-    startGame: handleStartGame,
     forfeit: handleForfeit,
     dismissStreakToast: handleDismissStreakToast,
   };

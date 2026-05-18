@@ -46,15 +46,12 @@ export function useTimer(
   // Ref to store the interval ID so we can clear it on cleanup or pause.
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  /** Decrements the timer by 1 second, stopping at 0. */
+  /** Syncs the timer with ground-truth remaining time, avoiding drift when the tab is backgrounded. */
   const tick = useCallback(() => {
-    setTimeRemaining((prev) => {
-      if (prev === null || prev <= 1) {
-        return 0;
-      }
-      return prev - 1;
-    });
-  }, []);
+    if (timeLimit === null) return;
+    const remaining = getRemainingTime(startedAt, timeLimit);
+    setTimeRemaining(remaining);
+  }, [startedAt, timeLimit]);
 
   // Effect 1: Detect when the timer reaches zero and signal expiration.
   // Also cleans up the interval to prevent further ticks.

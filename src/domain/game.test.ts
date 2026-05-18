@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   createGame,
   addLetter,
@@ -13,7 +13,6 @@ import {
   getRemainingTime,
   buildScoreRecord,
   isPersonalBest,
-  finalizeGameScore,
 } from './game';
 import type { GameState, LetterResult, LetterStatus, ScoreRecord } from './types';
 
@@ -472,90 +471,3 @@ describe('isPersonalBest', () => {
   });
 });
 
-describe('finalizeGameScore', () => {
-  const store = new Map<string, string>();
-
-  const localStorageMock = {
-    getItem: vi.fn((key: string) => store.get(key) ?? null),
-    setItem: vi.fn((key: string, value: string) => { store.set(key, value); }),
-    removeItem: vi.fn((key: string) => { store.delete(key); }),
-  };
-
-  beforeEach(() => {
-    store.clear();
-    vi.stubGlobal('localStorage', localStorageMock);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('returns null when gameStatus is not lost', () => {
-    const state = makeState({ gameStatus: 'playing' });
-
-    const result = finalizeGameScore(state);
-
-    expect(result).toBeNull();
-    expect(store.has('shmordle-scores')).toBe(false);
-  });
-
-  it('returns null when difficulty is zen', () => {
-    const state = makeState({ gameStatus: 'lost', difficulty: 'zen' });
-
-    const result = finalizeGameScore(state);
-
-    expect(result).toBeNull();
-    expect(store.has('shmordle-scores')).toBe(false);
-  });
-
-  it('returns true when it is a personal best', () => {
-    localStorage.setItem('shmordle-scores', JSON.stringify({
-      records: [{ id: 'old', difficulty: 'hard', maxStreak: 2, totalPoints: 50, date: 1000 }]
-    }));
-
-    const state = makeState({
-      gameStatus: 'lost',
-      difficulty: 'hard',
-      streak: 7,
-      sessionPoints: 200,
-    });
-
-    const result = finalizeGameScore(state);
-
-    expect(result).toBe(true);
-  });
-
-  it('returns false when not a personal best', () => {
-    localStorage.setItem('shmordle-scores', JSON.stringify({
-      records: [{ id: 'old', difficulty: 'hard', maxStreak: 5, totalPoints: 300, date: 1000 }]
-    }));
-
-    const state = makeState({
-      gameStatus: 'lost',
-      difficulty: 'hard',
-      streak: 3,
-      sessionPoints: 100,
-    });
-
-    const result = finalizeGameScore(state);
-
-    expect(result).toBe(false);
-  });
-
-  it('saves a score record to localStorage', () => {
-    const state = makeState({
-      gameStatus: 'lost',
-      difficulty: 'hard',
-      streak: 4,
-      sessionPoints: 180,
-    });
-
-    finalizeGameScore(state);
-
-    const saved = JSON.parse(store.get('shmordle-scores')!);
-    expect(saved.records).toHaveLength(1);
-    expect(saved.records[0].id).toBe(state.gameId);
-    expect(saved.records[0].maxStreak).toBe(4);
-    expect(saved.records[0].totalPoints).toBe(180);
-  });
-});

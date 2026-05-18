@@ -47,7 +47,7 @@ export function GameOverOverlay({
 
         {isNewBest && difficulty && (
           <p className={styles.bestInfo}>
-            New personal best for {DIFFICULTY_CONFIG[difficulty].label.replace('🧘 ', '')}!
+            New personal best for {DIFFICULTY_CONFIG[difficulty].shortLabel}!
           </p>
         )}
 

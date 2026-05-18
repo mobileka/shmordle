@@ -10,13 +10,13 @@
 
 import { useState } from 'react';
 import { loadScores, clearScores } from '../storage/score';
-import { DIFFICULTY_CONFIG } from '../domain/types';
+import { DIFFICULTY, DIFFICULTY_CONFIG } from '../domain/types';
 import type { Difficulty } from '../domain/types';
 import { ConfirmDialog } from './ConfirmDialog';
 import styles from './HighScoresPage.module.css';
 
 // Difficulties that support scoring (Zen is excluded — no scores).
-const MODES: Difficulty[] = ['insane', 'hard', 'relaxed'];
+const MODES = DIFFICULTY.filter((d) => d !== 'zen').reverse();
 
 interface Props {
   onBack: () => void;
@@ -79,7 +79,7 @@ export function HighScoresPage({ onBack }: Props) {
             onClick={() => setMode(m)}
             data-mode={m}
           >
-            {DIFFICULTY_CONFIG[m].label.replace('🧘 ', '')}
+            {DIFFICULTY_CONFIG[m].shortLabel}
           </button>
         ))}
       </div>
@@ -117,7 +117,7 @@ export function HighScoresPage({ onBack }: Props) {
 
       <ConfirmDialog
         open={showReset}
-        message={`Clear all ${DIFFICULTY_CONFIG[mode].label.replace('🧘 ', '')} scores?`}
+        message={`Clear all ${DIFFICULTY_CONFIG[mode].shortLabel} scores?`}
         confirmLabel="Reset"
         cancelLabel="Cancel"
         onConfirm={handleReset}

@@ -87,19 +87,6 @@ describe('useGame hook', () => {
     expect(result.current.gameStatus).toBe('playing');
   });
 
-  it('startGame starts a new game with given difficulty', async () => {
-    const { useGame } = await import('./useGame');
-    const { result } = renderHook(() => useGame('zen'));
-    act(() => result.current.addLetter('H'));
-    act(() => result.current.addLetter('E'));
-    act(() => result.current.startGame('insane'));
-    expect(result.current.guesses).toEqual([]);
-    expect(result.current.currentGuess).toBe('');
-    expect(result.current.gameStatus).toBe('playing');
-    expect(result.current.invalidWord).toBe(false);
-    expect(result.current.difficulty).toBe('insane');
-  });
-
   it('forfeit sets gameStatus to lost', async () => {
     const { useGame } = await import('./useGame');
     const { result } = renderHook(() => useGame('hard'));
