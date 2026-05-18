@@ -8,7 +8,7 @@
  */
 
 import { useTheme } from '../hooks/useTheme';
-import styles from './ThemeToggle.module.css';
+import styles from './IconButton.module.css';
 
 export function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme();
@@ -19,7 +19,7 @@ export function ThemeToggle() {
       aria-checked={isDark}
       aria-label="Toggle theme"
       onClick={toggleTheme}
-      className={styles.toggle}
+      className={styles.button}
     >
       {isDark ? (
         <svg className={styles.icon} width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

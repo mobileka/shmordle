@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 
-import styles from './GiveUpButton.module.css';
+import styles from './IconButton.module.css';
 
 interface Props {
   onGiveUp: () => void;

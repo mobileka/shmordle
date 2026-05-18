@@ -8,163 +8,18 @@
  * @packageDocumentation
  */
 
-import { useState, useEffect, useMemo } from 'react';
-import { useGame } from './hooks/useGame';
-import { useKeyboard } from './hooks/useKeyboard';
-import { useTimer } from './hooks/useTimer';
-import { Header } from './components/Header';
-import { GameBoard } from './components/GameBoard';
-import { VirtualKeyboard } from './components/VirtualKeyboard';
-import { FeedbackToast } from './components/FeedbackToast';
-import { GameOverOverlay } from './components/GameOverOverlay';
-import { ConfirmDialog } from './components/ConfirmDialog';
+import { useState } from 'react';
+import { GameArea } from './components/GameArea';
 import { DifficultyPicker } from './components/DifficultyPicker';
-import { StreakToast } from './components/StreakToast';
 import { HighScoresPage } from './components/HighScoresPage';
+import { Header } from './components/Header';
 import { loadGameState, clearGameState } from './storage/gameState';
 import { savePreferredDifficulty, loadPreferredDifficulty } from './storage/difficulty';
-import { DIFFICULTY_CONFIG } from './domain/types';
 import type { Difficulty } from './domain/types';
 
 import styles from './App.module.css';
 
-// Which screen the app is currently showing.
 type PageView = 'picker' | 'game' | 'scores';
-
-// Props passed from the top-level App router into the active game view.
-interface GameAreaProps {
-  difficulty: Difficulty;
-  onPlayAgain: () => void;
-  onViewScores: () => void;
-}
-
-// Wraps the game board, keyboard, overlays, and timer for a single game run.
-// Handles game-over flows (time-up, give-up), score saving, keyboard input,
-// and visual state like new-best and streak toasts.
-function GameArea({ difficulty, onPlayAgain, onViewScores }: GameAreaProps) {
-  const {
-    hiddenWord,
-    guesses,
-    currentGuess,
-    evaluations,
-    gameStatus,
-    virtualKeyboardState,
-    invalidWord,
-    animating,
-    inputDisabled,
-    startedAt,
-    sessionPoints,
-    streak,
-    timeBonus,
-    streakToast,
-    isNewBest,
-    addLetter,
-    removeLetter,
-    submitGuess,
-    forfeit,
-    dismissStreakToast,
-  } = useGame(difficulty);
-
-  // Whether the give-up confirmation dialog is open.
-  const [pendingGiveUp, setPendingGiveUp] = useState(false);
-
-  const baseTimeLimit = DIFFICULTY_CONFIG[difficulty].timeLimit;
-  // The player's accumulated time bonus extends the base time limit.
-  const effectiveTimeLimit = useMemo(
-    () => (baseTimeLimit !== null ? baseTimeLimit + timeBonus : null),
-    [baseTimeLimit, timeBonus]
-  );
-
-  const { timeRemaining, isExpired } = useTimer(
-    startedAt,
-    effectiveTimeLimit,
-    gameStatus === 'playing'
-  );
-
-  // When the timer expires: forfeit the game.
-  useEffect(() => {
-    if (isExpired) {
-      forfeit();
-    }
-  }, [isExpired, forfeit]);
-
-  // Listen for physical keyboard input (letters, Enter, Backspace).
-  // Greyed-out keys on the virtual keyboard are also blocked on physical input.
-  useKeyboard({
-    onLetter: addLetter,
-    onEnter: submitGuess,
-    onBackspace: removeLetter,
-    virtualKeyboardState,
-    disabled: inputDisabled,
-  });
-
-  // Open the give-up confirmation dialog.
-  const handleGiveUpClick = () => setPendingGiveUp(true);
-
-  // User confirms give-up: forfeit the game.
-  const handleConfirmGiveUp = () => {
-    setPendingGiveUp(false);
-    forfeit();
-  };
-
-  // User cancels the give-up dialog — just close it.
-  const handleCancelGiveUp = () => setPendingGiveUp(false);
-
-  const isOver = gameStatus === 'won' || gameStatus === 'lost';
-  const showScores = isOver && difficulty !== 'zen';
-
-  return (
-    <div className={styles.app}>
-      <Header
-        onGiveUp={handleGiveUpClick}
-        showGiveUp={gameStatus === 'playing'}
-        timeRemaining={timeRemaining}
-      />
-      <main className={styles.main}>
-        <StreakToast
-          show={streakToast !== null}
-          points={streakToast?.points ?? 0}
-          streak={streakToast?.streak ?? 0}
-          onDone={dismissStreakToast}
-        />
-        <GameBoard
-          guesses={guesses}
-          currentGuess={currentGuess}
-          evaluations={evaluations}
-          animating={animating}
-        />
-        <VirtualKeyboard
-          virtualKeyboardState={virtualKeyboardState}
-          onLetter={addLetter}
-          onEnter={submitGuess}
-          onBackspace={removeLetter}
-          disabled={inputDisabled}
-        />
-      </main>
-      <FeedbackToast message="Not in word list" show={invalidWord} />
-      {isOver && (
-        <GameOverOverlay
-          status={gameStatus}
-          hiddenWord={hiddenWord}
-          onPlayAgain={onPlayAgain}
-          score={showScores ? sessionPoints : undefined}
-          streak={showScores ? streak : undefined}
-          isNewBest={showScores ? isNewBest : undefined}
-          onViewScores={showScores ? onViewScores : undefined}
-          difficulty={showScores ? difficulty : undefined}
-        />
-      )}
-      <ConfirmDialog
-        open={pendingGiveUp}
-        message="Are you sure you want to give up?"
-        confirmLabel="Give Up"
-        cancelLabel="Cancel"
-        onConfirm={handleConfirmGiveUp}
-        onCancel={handleCancelGiveUp}
-      />
-    </div>
-  );
-}
 
 // Top-level router. Decides which screen to show based on pageView:
 //   'picker' — difficulty selection

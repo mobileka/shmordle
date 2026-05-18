@@ -31,11 +31,11 @@ export type Difficulty = 'zen' | 'relaxed' | 'hard' | 'insane';
 export const DIFFICULTY: Difficulty[] = ['zen', 'relaxed', 'hard', 'insane'];
 
 // Per-difficulty display label and base time limit (seconds). null = no timer.
-export const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; timeLimit: number | null }> = {
-  zen: { label: 'Zen 🧘', timeLimit: null },
-  relaxed: { label: 'Relaxed', timeLimit: 180 },
-  hard: { label: 'Hard', timeLimit: 60 },
-  insane: { label: 'Insane', timeLimit: 30 },
+export const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; shortLabel: string; timeLimit: number | null }> = {
+  zen: { label: 'Zen 🧘', shortLabel: 'Zen', timeLimit: null },
+  relaxed: { label: 'Relaxed', shortLabel: 'Relaxed', timeLimit: 180 },
+  hard: { label: 'Hard', shortLabel: 'Hard', timeLimit: 60 },
+  insane: { label: 'Insane', shortLabel: 'Insane', timeLimit: 30 },
 };
 
 // One entry in the high score history, persisted to localStorage under 'shmordle-scores'.

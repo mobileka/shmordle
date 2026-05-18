@@ -20,7 +20,6 @@ import type { GameState, GameStatus, LetterResult, LetterStatus, Difficulty, Sco
 import { DIFFICULTY_CONFIG } from './types';
 import { evaluateGuess } from './evaluation';
 import { getRandomWord } from './dictionary';
-import { loadScores, saveScore } from '../storage/score';
 
 // Maximum number of guesses allowed per round (Wordle standard).
 const MAX_GUESSES = 6;
@@ -263,22 +262,3 @@ export function isPersonalBest(records: ScoreRecord[], difficulty: Difficulty, t
   return totalPoints > bestForDiff;
 }
 
-/**
- * Finalizes scoring at game end: saves the score record and checks
- * if it is a new personal best.
- *
- * Only applies to 'lost' games in timed modes (not Zen, not won games).
- * Won games do not save scores because the player keeps playing rounds.
- *
- * @param state - The completed game state.
- * @returns True if this is a new personal best, false if not,
- *          or null if the game does not qualify for scoring.
- */
-export function finalizeGameScore(state: GameState): boolean | null {
-  if (state.gameStatus !== 'lost' || state.difficulty === 'zen') return null;
-  const records = loadScores().records;
-  const record = buildScoreRecord(state);
-  const isNewBest = isPersonalBest(records, state.difficulty, state.sessionPoints);
-  saveScore(record);
-  return isNewBest;
-}
