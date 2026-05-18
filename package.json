@@ -10,6 +10,7 @@
     "docs": "typedoc",
     "test": "vitest run",
     "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
     "check": "tsc -b && npm test && npm run build"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "jsdom": "^29.1.1",
     "typedoc": "^0.28.19",
     "typescript": "~5.8.0",

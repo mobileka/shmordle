@@ -15,6 +15,18 @@ Run all CI checks before considering work complete:
 
 `npm run check`
 
+## Coverage
+
+Before making any changes:
+1. Run `npm run coverage` to generate a baseline report
+2. Note the coverage percentages (lines, branches, functions, statements) from `coverage/coverage-summary.json`
+
+After making changes:
+1. Run `npm run coverage` again
+2. Compare against the baseline — if any metric dropped, add tests to restore it
+
+The HTML report is available at `coverage/index.html` for manual browsing.
+
 ## Keeping the `npm run check` in synch with `.github/workflows/ci.yml`
 
 If we add new checks (e.g. linting) to the GitHub Actions CI configuration, you should also update the `npm run check` script to match it.
