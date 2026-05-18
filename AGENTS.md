@@ -27,6 +27,12 @@ After making changes:
 
 The HTML report is available at `coverage/index.html` for manual browsing.
 
+## Screenshot
+
+Run `npm run screenshot` to capture the current app state and overwrite `screenshot.png`. The README embeds this file, so the updated image appears automatically.
+
+The script starts the Vite dev server, injects a game-in-progress state into localStorage, launches a headless browser, and saves the screenshot to the project root. It cleans up the server and browser when done.
+
 ## Keeping the `npm run check` in synch with `.github/workflows/ci.yml`
 
 If we add new checks (e.g. linting) to the GitHub Actions CI configuration, you should also update the `npm run check` script to match it.
