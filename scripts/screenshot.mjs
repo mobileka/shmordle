@@ -78,7 +78,7 @@ async function main() {
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 400, height: 800 });
+    await page.setViewport({ width: 500, height: 900, deviceScaleFactor: 2 });
 
     await page.evaluateOnNewDocument((state, theme) => {
       localStorage.setItem('shmordle-game-state', JSON.stringify(state));
@@ -89,6 +89,8 @@ async function main() {
     await page.goto(`http://127.0.0.1:${PORT}`, { waitUntil: 'networkidle0' });
 
     await page.waitForSelector('main', { timeout: 10_000 });
+
+    await new Promise((r) => setTimeout(r, 500));
 
     const outputPath = join(ROOT, 'screenshot.png');
     await page.screenshot({ path: outputPath, type: 'png' });
